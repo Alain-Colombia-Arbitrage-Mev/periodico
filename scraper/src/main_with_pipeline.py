@@ -1,12 +1,13 @@
 """
-Main scraper with complete pipeline (Scrape -> LLM Rewrite -> Supabase Sync)
+Main scraper with complete pipeline (Scrape RSS -> LLM Rewrite -> Supabase Sync)
+Uses RSS feeds - no browser/Playwright required (works on Railway)
 """
 import asyncio
 import os
 from pydantic_settings import BaseSettings
 from loguru import logger
 
-from .pipeline import ArticlePipeline
+from .pipeline_rss import RSSArticlePipeline
 from .storage.supabase_storage import SupabaseStorage
 from .utils.logger import setup_logger
 from .utils.image_handler import ImageHandler
@@ -90,8 +91,8 @@ async def main():
         storage_bucket="noticias"
     )
 
-    # Create pipeline
-    pipeline = ArticlePipeline(
+    # Create RSS pipeline (no browser required)
+    pipeline = RSSArticlePipeline(
         image_handler=image_handler,
         supabase_storage=supabase_storage,
         openrouter_api_key=settings.openrouter_api_key,

@@ -1,5 +1,4 @@
-# Web Scraping
-playwright==1.41.0
+# Web Scraping (RSS-based, no browser needed)
 beautifulsoup4==4.12.3
 lxml==5.1.0
 html5lib==1.1
