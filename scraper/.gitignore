@@ -1,0 +1,118 @@
+# ============================================================================
+# Scraper .gitignore - Protección de datos sensibles
+# ============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# ============================================================================
+# ARCHIVOS SENSIBLES - CREDENCIALES Y DATOS
+# ============================================================================
+
+# Environment Variables (NUNCA publicar credenciales)
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+*.env
+
+# IMPORTANTE: .env.example SÍ se publica (sin credenciales reales)
+!.env.example
+
+# Data & Logs (pueden contener datos scrapeados o logs con URLs)
+data/
+logs/
+*.log
+
+# Database local (si existe)
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================================================
+# IDE Y SISTEMA
+# ============================================================================
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+
+# ============================================================================
+# DOCUMENTACIÓN INTERNA (pueden contener estrategias o credenciales)
+# ============================================================================
+
+# Documentos internos específicos
+CREDENCIALES*.md
+*_COMPLETO.txt
+*_STATUS.txt
+PROJECT_STATS.txt
+SISTEMA_COMPLETO.txt
+
+# ============================================================================
+# TESTING Y DESARROLLO
+# ============================================================================
+
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+!docker-compose.local.yml  # Este sí se incluye
+
+# Cache
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Temporary test files
+test_*.py.bak
+*_backup.py
+
+# ============================================================================
+# ARCHIVOS QUE SÍ SE PUBLICAN (importantes)
+# ============================================================================
+
+# Estos archivos SÍ deben estar en el repo:
+# - Dockerfile
+# - docker-compose.local.yml (para testing local)
+# - entrypoint.sh
+# - requirements.txt
+# - .env.example (sin credenciales)
+# - src/ (todo el código fuente)
+# - railway.json
+# - railway.toml
+# - README.md, RAILWAY.md, etc. (documentación pública)

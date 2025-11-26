@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: news-scraper-local
+    env_file:
+      - .env
+    volumes:
+      # Mount data and logs for local development
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    environment:
+      # Override for local testing
+      RUN_MODE: ${RUN_MODE:-once}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    # For debugging: comment out to use default CMD
+    # command: python -u -m src.main_with_pipeline
+
+networks:
+  default:
+    name: scraper-network

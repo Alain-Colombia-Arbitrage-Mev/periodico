@@ -9,13 +9,16 @@ build/
 out/
 public/
 
-# Environment variables
+# Environment variables - Solo usar .env
 .env
+# Ignorar otros archivos de entorno para forzar uso de .env únicamente
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
 .env.production
+.env.test
 
 # Logs
 logs/
@@ -92,3 +95,80 @@ logs/
 test-results/
 playwright-report/
 .vercel
+
+# ============================================================================
+# ARCHIVOS SENSIBLES - NO PUBLICAR
+# ============================================================================
+
+# Carpetas de IA/Agentes (pueden contener sesiones y datos sensibles)
+.bmad/
+.claude/
+.claude-flow/
+.cursor/
+.hive-mind/
+.swarm/
+
+# Configuraciones sensibles
+.mcp.json
+.railway/
+
+# Documentos internos (pueden contener credenciales, estrategias, etc.)
+*_GUIDE.md
+*_REPORT.md
+*_STATUS.md
+*_COMPLETO.md
+*_COMPLETADO.md
+CREDENCIALES*.md
+HIVE_MIND*.md
+INSTRUCCIONES*.md
+
+# Documentos de deployment/configuración específicos (pueden tener IDs, tokens)
+RAILWAY_*.md
+VERCEL_*.md
+DEPLOY_*.md
+DEPLOYMENT_*.md
+CONFIGURAR_*.md
+ESTADO_*.md
+
+# Scripts de configuración que pueden tener credenciales
+configure-*.sh
+*-variables.txt
+railway-*.sh
+*-production.sh
+
+# Archivos de fuerza de deployment (contienen timestamps y metadata)
+FORCE_*.txt
+.vercel-*
+*.vercel-*
+
+# Dockerfiles específicos de entorno (pueden tener credenciales)
+Dockerfile.production
+Dockerfile.railway
+Dockerfile.optimized
+
+# Archivos de configuración de entorno
+env.production*
+.env.ai-apis
+.npmrc
+
+# Nginx configs (pueden tener dominios y configuraciones)
+nginx*.conf
+
+# JSON públicos con posible metadata
+public.json
+
+# Patches específicos
+patches/
+
+# Admin portal (si contiene lógica de negocio privada)
+admin-portal/
+
+# Scripts de test con posibles credenciales
+test-*.py
+test-*.sh
+verify-*.sh
+
+# Data del scraper (puede contener información scrapeada)
+scraper/data/
+scraper/logs/
+scraper/*.log
