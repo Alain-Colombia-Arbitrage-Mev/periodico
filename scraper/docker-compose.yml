@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  scraper:
+    build: .
+    image: periodico-scraper:latest
+    container_name: periodico-scraper
+    restart: unless-stopped
+
+    # Load environment variables from .env file
+    env_file:
+      - .env
+
+    # Pass all environment variables explicitly
+    environment:
+      # Supabase
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      # OpenRouter
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - LLM_MODEL=${LLM_MODEL:-deepseek/deepseek-v3.2-exp}
+      - LLM_REWRITE_ENABLED=${LLM_REWRITE_ENABLED:-true}
+      # Scraper
+      - SCRAPE_INTERVAL=${SCRAPE_INTERVAL:-43200}
+      - MAX_ARTICLES_PER_CATEGORY=${MAX_ARTICLES_PER_CATEGORY:-20}
+      - DELETE_OLD_ARTICLES=${DELETE_OLD_ARTICLES:-true}
+      - OLD_ARTICLES_DAYS=${OLD_ARTICLES_DAYS:-3}
+      - PAGE_TIMEOUT=${PAGE_TIMEOUT:-30000}
+      - DOWNLOAD_IMAGES=${DOWNLOAD_IMAGES:-true}
+      - IMAGE_QUALITY=${IMAGE_QUALITY:-85}
+      - MAX_IMAGE_SIZE=${MAX_IMAGE_SIZE:-2048}
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - RUN_MODE=${RUN_MODE:-continuous}
+      # Stealth (Anti-Detection)
+      - STEALTH_ENABLED=${STEALTH_ENABLED:-true}
+      - STEALTH_REQUESTS_PER_MINUTE=${STEALTH_REQUESTS_PER_MINUTE:-10}
+      - STEALTH_MIN_DELAY=${STEALTH_MIN_DELAY:-2.0}
+      - STEALTH_MAX_DELAY=${STEALTH_MAX_DELAY:-5.0}
+    
+    # Mount logs directory for persistence
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Optional: Run scraper once and exit
+  scraper-once:
+    build: .
+    image: periodico-scraper:latest
+    container_name: periodico-scraper-once
+    
+    env_file:
+      - .env
+    
+    environment:
+      - RUN_MODE=once
+    
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    
+    profiles:
+      - once

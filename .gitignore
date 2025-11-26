@@ -123,6 +123,12 @@ HIVE_MIND*.md
 INSTRUCCIONES*.md
 
 # Documentos de deployment/configuración específicos (pueden tener IDs, tokens)
+# EXCEPCIÓN: Documentación pública del scraper SÍ se incluye
+!scraper/RAILWAY.md
+!scraper/DEPLOY_NOW.md
+!scraper/DEEPSEEK_V3_UPDATE.md
+!scraper/MEJORAS_RAILWAY.md
+
 RAILWAY_*.md
 VERCEL_*.md
 DEPLOY_*.md

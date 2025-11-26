@@ -1,19 +1,7 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({ 
-  subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-});
+import { SWRProvider } from './providers';
 
 export const metadata: Metadata = {
   title: 'Política Argentina - Portal de Noticias',
@@ -47,17 +35,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="es" data-scroll-behavior="smooth">
       <head>
+        {/* Suppress non-critical console warnings */}
+        <Script src="/suppress-warnings.js" strategy="beforeInteractive" />
+
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* Force deployment trigger - v2.3.0-NAVIGATION-OPTIMIZED */}
-        <meta name="deployment-version" content="2.3.0-navigation-optimized-ultra" />
-        <meta name="deployment-timestamp" content="2025-11-04T01:10:00.000Z" />
-        <meta name="cache-bust" content={`navigation-force-${Date.now()}`} />
-        <meta name="navigation-menu" content="optimized" />
+        {/* Deployment metadata */}
+        <meta name="deployment-version" content="3.0.0-lanacion-style" />
+        <meta name="theme-color" content="#126fff" />
         
         {/* Schema.org Organization */}
         <Script
@@ -99,8 +88,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
-        {children}
+      <body>
+        <SWRProvider>
+          {children}
+        </SWRProvider>
       </body>
     </html>
   );

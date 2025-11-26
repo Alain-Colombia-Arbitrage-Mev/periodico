@@ -9,16 +9,20 @@
     "start": "next start",
     "lint": "next lint",
     "force-deploy": "echo 'Forcing deployment...' && npm run build",
-    "verify": "node scripts/verificar-errores.js"
+    "verify": "node scripts/verificar-errores.js",
+    "check-env": "node scripts/check-env.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.78.0",
+    "@supabase/supabase-js": "^2.45.4",
+    "better-sqlite3": "^11.10.0",
+    "claude-flow": "^2.7.35",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.460.0",
-    "next": "^16.0.1",
+    "next": "^15.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "swr": "^2.2.5",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {

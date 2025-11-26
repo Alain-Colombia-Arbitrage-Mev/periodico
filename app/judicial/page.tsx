@@ -1,182 +1,193 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { supabaseHelpers } from '@/lib/supabase';
+import NYTHeader from '@/components/nyt/Header';
+import MainHeadline from '@/components/nyt/MainHeadline';
+import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
-import { noticiasJudicial } from '@/app/data/noticias-completas';
+import NewsImage from '@/components/NewsImage';
+import { Scale } from 'lucide-react';
+
+interface Noticia {
+  id: string;
+  title: string;
+  subtitle?: string;
+  excerpt: string;
+  content: string;
+  image_url: string;
+  slug: string;
+  published_at: string;
+  views: number;
+  is_breaking: boolean;
+  categorias: {
+    name: string;
+    slug: string;
+    color: string;
+  };
+}
 
 export default function JudicialPage() {
-  // NOTICIA BREAKING REAL - 100% VISIBLE
-  const breakingNews = noticiasJudicial.find(n => n.id === 'jud-breaking-1') || noticiasJudicial[0];
-  const regularNews = noticiasJudicial.filter(n => n.id !== 'jud-breaking-1').slice(0, 6);
+  const [noticias, setNoticias] = useState<Noticia[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const trendingTopics = [
-    { name: 'Fiscal Companys', count: '89.5K' },
-    { name: 'Eduardo Accastello', count: '67.2K' },
-    { name: 'Corrupción Judicial', count: '125K' },
-    { name: 'Villa María', count: '45.8K' },
-    { name: 'Narcotráfico', count: '234K' }
-  ];
+  useEffect(() => {
+    async function fetchNoticias() {
+      try {
+        const { data, error } = await supabaseHelpers.getNoticias({
+          status: 'published',
+          category: 'judicial',
+          limit: 20
+        });
 
-  // TIMESTAMP ÚNICO PARA FORZAR REBUILD
-  const buildTimestamp = Date.now();
-  
+        if (!error && data) {
+          setNoticias(data as Noticia[]);
+        }
+      } catch (error) {
+        console.error('Error loading noticias:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchNoticias();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <NYTHeader />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-lg">Cargando noticias judiciales...</p>
+        </div>
+        
+      </div>
+    );
+  }
+
+  const featuredNews = noticias[0];
+  const recentNews = noticias.slice(1, 11);
+  const sidebarNews = noticias.slice(1, 5);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* BANNER ROJO EXTREMO - IMPOSIBLE NO VERLO */}
-      <div className="bg-red-600 text-white py-6 animate-pulse border-b-4 border-yellow-400" style={{ position: 'sticky', top: 0, zIndex: 9999 }}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-4 text-center">
-            <span className="px-5 py-3 bg-yellow-400 text-red-600 rounded-lg font-black text-base animate-bounce shadow-lg">
-              🔥🔥🔥 ÚLTIMA HORA 🔥🔥🔥
-            </span>
-            <Link 
-              href="/judicial/jud-breaking-1" 
-              className="hover:underline font-black text-2xl flex-1 text-center"
-              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
-            >
-              🚨 ALERTA JUDICIAL: {breakingNews.title.toUpperCase()} 🚨
-            </Link>
-            <span className="text-xl font-black bg-yellow-400 text-red-600 px-4 py-2 rounded-lg">
-              👁️ {breakingNews.views.toLocaleString()} VISTAS
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      {/* MENSAJE DE ACTUALIZACIÓN VISIBLE */}
-      <div className="bg-green-500 text-white text-center py-2 font-bold">
-        ✅ SITIO ACTUALIZADO EL {new Date().toLocaleDateString('es-AR')} - BUILD: {buildTimestamp}
-      </div>
+    <div className="min-h-screen bg-white">
+      <NYTHeader />
 
-      {/* NAVIGATION SIMPLE */}
-      <nav className="bg-white shadow-lg border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center py-4">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
-              Política Argentina
-            </Link>
-            <div className="flex space-x-6">
-              <Link href="/politica" className="text-gray-700 hover:text-blue-600">Política</Link>
-              <Link href="/economia" className="text-gray-700 hover:text-blue-600">Economía</Link>
-              <Link href="/judicial" className="text-red-600 font-bold border-b-2 border-red-600">Judicial</Link>
-              <Link href="/internacional" className="text-gray-700 hover:text-blue-600">Internacional</Link>
-              <Link href="/sociedad" className="text-gray-700 hover:text-blue-600">Sociedad</Link>
-            </div>
+      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+        {/* Category Header */}
+        <div className="mb-6 lg:mb-8 pb-4 border-b-2 border-black">
+          <div className="flex items-center gap-3 mb-2">
+            <Scale className="w-8 h-8" style={{ color: '#8B4513' }} />
+            <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+              Judicial
+            </h1>
           </div>
-        </div>
-      </nav>
-
-      {/* NOTICIA DESTACADA GIGANTE */}
-      <div className="bg-red-50 border-l-8 border-red-600 p-10 mb-8 shadow-2xl">
-        <div className="container mx-auto max-w-5xl">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold">
-              🔥 BREAKING NEWS
-            </span>
-            <span className="text-red-600 font-semibold">Judicial</span>
-            <span className="text-gray-500 text-sm">• {breakingNews.publishedAt.toLocaleDateString('es-AR')}</span>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-            {breakingNews.title}
-          </h1>
-          
-          <p className="text-xl text-gray-700 mb-6 leading-relaxed">
-            {breakingNews.excerpt}
+          <p className="text-base lg:text-lg" style={{ color: 'var(--nyt-text-secondary)' }}>
+            Cobertura de casos judiciales, tribunales y justicia en Argentina
           </p>
-
-          <div className="flex items-center gap-4 mb-6">
-            <span className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold text-lg">
-              👁️ {breakingNews.views.toLocaleString()} VISTAS
-            </span>
-            <span className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">
-              ⏱️ Hace 30 minutos
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-gray-600 font-semibold">Tags:</span>
-            {(breakingNews.tags || []).slice(0, 4).map((tag) => (
-              <span key={tag} className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">
-                #{tag}
-              </span>
-            ))}
-          </div>
-
-          <Link 
-            href="/judicial/jud-breaking-1"
-            className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg text-lg font-bold inline-block transition-all hover:scale-105 shadow-lg"
-          >
-            📖 LEER NOTICIA COMPLETA →
-          </Link>
         </div>
-      </div>
 
-      {/* Real Content - Judicial News */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              Noticias Judiciales
-            </h2>
-            
-            <div className="space-y-6">
-              {regularNews.map((noticia) => (
-                <article key={noticia.id} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                  <div className="flex">
-                    <div className="w-1/3">
-                      <img 
-                        src={noticia.imageUrl} 
-                        alt={noticia.title}
-                        className="w-full h-32 object-cover"
-                      />
-                    </div>
-                    <div className="w-2/3 p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-red-600 font-semibold text-sm">{noticia.category}</span>
-                        <span className="text-gray-500 text-sm">• {noticia.publishedAt.toLocaleDateString('es-AR')}</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
-                        <Link href={`/judicial/${noticia.id}`} className="hover:text-red-600">
-                          {noticia.title}
+          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
+            {/* Featured Article */}
+            {featuredNews && (
+              <div className="mb-8 lg:mb-12">
+                <MainHeadline article={{
+                  id: featuredNews.id,
+                  title: featuredNews.title,
+                  subtitle: featuredNews.subtitle,
+                  excerpt: featuredNews.excerpt,
+                  image_url: featuredNews.image_url,
+                  slug: featuredNews.slug,
+                  category_slug: 'judicial',
+                  published_at: featuredNews.published_at,
+                  views: featuredNews.views
+                }} />
+              </div>
+            )}
+
+            {/* Recent News */}
+            {recentNews.length > 0 ? (
+              <div className="space-y-0">
+                {recentNews.map((article) => (
+                  <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-black">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                      <div className="flex-shrink-0 md:w-[280px] lg:w-[348px]">
+                        <Link href={`/judicial/${article.slug}`}>
+                          <h2 className="text-lg md:text-[20px] font-bold mb-3 md:mb-4 hover:opacity-80 transition" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                            {article.title}
+                          </h2>
                         </Link>
-                      </h3>
-                      <p className="text-gray-600 text-sm mb-3">{noticia.excerpt}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-500 text-sm">
-                          👁️ {noticia.views.toLocaleString()} vistas
-                        </span>
-                        <Link 
-                          href={`/judicial/${noticia.id}`}
-                          className="text-red-600 hover:text-red-800 font-semibold text-sm"
-                        >
-                          Leer más →
+                        {article.excerpt && (
+                          <p className="text-sm md:text-[16px] leading-relaxed line-clamp-3 md:line-clamp-4 mb-3" style={{ color: 'var(--nyt-text-secondary)', fontFamily: 'var(--font-georgia)' }}>
+                            {article.excerpt}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex-shrink-0 flex-1 md:max-w-[420px] lg:max-w-[580px]">
+                        <Link href={`/judicial/${article.slug}`}>
+                          {article.image_url ? (
+                            <div className="relative w-full aspect-video md:aspect-auto md:h-[240px] lg:h-[300px] overflow-hidden rounded-sm">
+                              <NewsImage
+                                src={article.image_url}
+                                alt={article.title}
+                                fill
+                                className="object-cover hover:scale-105 transition-transform duration-300"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 420px, 580px"
+                                priority={false}
+                              />
+                            </div>
+                          ) : (
+                            <div className="relative w-full aspect-video md:aspect-auto md:h-[240px] lg:h-[300px] bg-gray-100 flex items-center justify-center rounded-sm">
+                              <span className="text-gray-400 text-sm">Sin imagen</span>
+                            </div>
+                          )}
                         </Link>
                       </div>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-lg mb-2" style={{ color: 'var(--nyt-text-gray)' }}>
+                  No hay noticias judiciales disponibles
+                </p>
+                <Link href="/" className="text-sm hover:underline" style={{ color: '#0066FF' }}>
+                  Volver al inicio
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Tendencias</h3>
-              <div className="space-y-3">
-                {trendingTopics.map((topic) => (
-                  <div key={topic.name} className="flex justify-between items-center">
-                    <span className="text-gray-700">{topic.name}</span>
-                    <span className="text-red-600 font-semibold">{topic.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="hidden lg:block lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
+            <Sidebar
+              featuredArticle={sidebarNews[0] ? {
+                id: sidebarNews[0].id,
+                title: sidebarNews[0].title,
+                excerpt: sidebarNews[0].excerpt,
+                image_url: sidebarNews[0].image_url,
+                slug: sidebarNews[0].slug,
+                category_slug: 'judicial',
+                published_at: sidebarNews[0].published_at
+              } : undefined}
+              sideArticles={sidebarNews.slice(1).map(a => ({
+                id: a.id,
+                title: a.title,
+                image_url: a.image_url,
+                slug: a.slug,
+                category_slug: 'judicial',
+                published_at: a.published_at
+              }))}
+            />
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Bloomberg Footer */}
+      
     </div>
   );
 }
-

@@ -1,139 +1,132 @@
 /**
- * CUSTOM HOOK - useNoticias
- * Client-side data fetching with caching and error handling
+ * OPTIMIZED NEWS FETCHING HOOK
+ * Implements SWR pattern with caching, deduplication, and automatic revalidation
  */
 
-'use client';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Noticia } from '@/lib/database';
-
-// ============================================
-// TYPES
-// ============================================
 interface UseNoticiasOptions {
   category?: string;
-  page?: number;
   limit?: number;
-  autoFetch?: boolean;
+  autoRefresh?: boolean;
+  refreshInterval?: number;
 }
 
-interface UseNoticiasResult {
-  data: Noticia[];
-  loading: boolean;
-  error: string | null;
-  total: number;
-  totalPages: number;
-  refetch: () => Promise<void>;
+interface NoticiasState<T> {
+  data: T | null;
+  isLoading: boolean;
+  error: Error | null;
+  mutate: () => Promise<void>;
 }
 
-// ============================================
-// HOOK
-// ============================================
-export function useNoticias(options: UseNoticiasOptions = {}): UseNoticiasResult {
-  const {
-    category,
-    page = 1,
-    limit = 20,
-    autoFetch = true,
-  } = options;
+// In-memory cache to deduplicate requests
+const requestCache = new Map<string, Promise<any>>();
+const dataCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 60000; // 1 minute
 
-  const [data, setData] = useState<Noticia[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+/**
+ * Optimized hook for fetching noticias with caching and deduplication
+ */
+export function useNoticias<T = any>(
+  endpoint: string,
+  options: UseNoticiasOptions = {}
+): NoticiasState<T> {
+  const [data, setData] = useState<T | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const fetchNoticias = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const { autoRefresh = false, refreshInterval = 30000 } = options;
+  const isMounted = useRef(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const cacheKey = \`\${endpoint}:\${JSON.stringify(options)}\`;
+
+  const fetchData = useCallback(async (force = false) => {
     try {
-      const params = new URLSearchParams();
-      if (category) params.append('category', category);
-      params.append('page', page.toString());
-      params.append('limit', limit.toString());
-
-      const response = await fetch(`/api/v1/noticias?${params}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch noticias');
+      if (!force) {
+        const cached = dataCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+          if (isMounted.current) {
+            setData(cached.data);
+            setIsLoading(false);
+          }
+          return;
+        }
       }
 
-      const result = await response.json();
+      let request = requestCache.get(cacheKey);
 
-      setData(result.data);
-      setTotal(result.pagination.total);
-      setTotalPages(result.pagination.totalPages);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  }, [category, page, limit]);
+      if (!request) {
+        const params = new URLSearchParams();
+        if (options.category) params.set('category', options.category);
+        if (options.limit) params.set('limit', options.limit.toString());
+        const url = params.toString() ? \`\${endpoint}?\${params}\` : endpoint;
 
-  useEffect(() => {
-    if (autoFetch) {
-      fetchNoticias();
-    }
-  }, [autoFetch, fetchNoticias]);
+        request = fetch(url, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          cache: 'force-cache',
+          next: { revalidate: 60 },
+        }).then(async (res) => {
+          if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+          return res.json();
+        });
 
-  return {
-    data,
-    loading,
-    error,
-    total,
-    totalPages,
-    refetch: fetchNoticias,
-  };
-}
-
-// ============================================
-// HOOK - Single Noticia
-// ============================================
-interface UseNoticiaResult {
-  data: Noticia | null;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-}
-
-export function useNoticia(id: string): UseNoticiaResult {
-  const [data, setData] = useState<Noticia | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchNoticia = useCallback(async () => {
-    if (!id) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/v1/noticias/${id}`);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch noticia');
+        requestCache.set(cacheKey, request);
+        request.finally(() => requestCache.delete(cacheKey));
       }
 
-      const result = await response.json();
-      setData(result.data);
+      const result = await request;
+      dataCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+      if (isMounted.current) {
+        setData(result);
+        setError(null);
+        setIsLoading(false);
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setError(err as Error);
+        setIsLoading(false);
+      }
     }
-  }, [id]);
+  }, [cacheKey, endpoint, options.category, options.limit]);
+
+  const mutate = useCallback(async () => {
+    setIsLoading(true);
+    await fetchData(true);
+  }, [fetchData]);
 
   useEffect(() => {
-    fetchNoticia();
-  }, [fetchNoticia]);
+    fetchData();
+  }, [fetchData]);
 
-  return {
-    data,
-    loading,
-    error,
-    refetch: fetchNoticia,
-  };
+  useEffect(() => {
+    if (autoRefresh) {
+      intervalRef.current = setInterval(() => fetchData(true), refreshInterval);
+      return () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+      };
+    }
+  }, [autoRefresh, refreshInterval, fetchData]);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  return { data, isLoading, error, mutate };
 }
 
+export function useNoticia(slug: string) {
+  return useNoticias(\`/api/noticias/\${slug}\`);
+}
+
+export function useNoticiasByCategory(category: string, limit = 20) {
+  return useNoticias('/api/noticias', { category, limit });
+}
+
+export function useBreakingNews() {
+  return useNoticias('/api/noticias?breaking=true', { autoRefresh: true, refreshInterval: 30000 });
+}

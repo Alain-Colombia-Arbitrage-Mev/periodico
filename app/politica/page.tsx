@@ -1,313 +1,188 @@
 'use client';
 
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import { supabaseHelpers } from '@/lib/supabase';
+import NYTHeader from '@/components/nyt/Header';
+import MainHeadline from '@/components/nyt/MainHeadline';
+import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
-import { Clock, Eye, TrendingUp, ArrowLeft } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { noticiasPolitica } from '../data/noticias-completas';
+import NewsImage from '@/components/NewsImage';
+import { Landmark } from 'lucide-react';
 
-function getCategoryClass(slug: string) {
-  return 'category-politica';
+interface Noticia {
+  id: string;
+  title: string;
+  subtitle?: string;
+  excerpt: string;
+  content: string;
+  image_url: string;
+  slug: string;
+  published_at: string;
+  views: number;
+  is_breaking: boolean;
+  categorias: {
+    name: string;
+    slug: string;
+    color: string;
+  };
 }
 
 export default function PoliticaPage() {
-  const featuredNews = noticiasPolitica[0];
-  const topNews = noticiasPolitica.slice(1, 7);
-  const moreNews = noticiasPolitica.slice(7);
+  const [noticias, setNoticias] = useState<Noticia[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchNoticias() {
+      try {
+        const { data, error } = await supabaseHelpers.getNoticias({
+          status: 'published',
+          category: 'politica',
+          limit: 20
+        });
+
+        if (!error && data) {
+          setNoticias(data as Noticia[]);
+        }
+      } catch (error) {
+        console.error('Error loading noticias:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchNoticias();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <NYTHeader />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-lg">Cargando noticias de política...</p>
+        </div>
+        
+      </div>
+    );
+  }
+
+  const featuredNews = noticias[0];
+  const recentNews = noticias.slice(1, 11);
+  const sidebarNews = noticias.slice(1, 5);
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Top Bar */}
-      <div className="top-bar no-print">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <time className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {new Date().toLocaleDateString('es-AR', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </time>
-          </div>
-          <div className="flex items-center gap-4">
-            <span>Buenos Aires, Argentina</span>
-            <span>|</span>
-            <span className="text-green-400">● En Vivo</span>
-          </div>
-        </div>
-      </div>
+      <NYTHeader />
 
-      {/* Main Header */}
-      <header className="main-header">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="logo-text hover:text-gray-700 transition-colors">
-              Política Argentina
-            </Link>
-            <p className="text-xs text-gray-500 hidden md:block">
-              El portal líder de noticias políticas
-            </p>
-          </div>
-        </div>
-        
-        {/* Navigation */}
-        <nav className="border-t border-gray-200 no-print">
-          <div className="container mx-auto px-4">
-            <ul className="flex items-center gap-6 py-3 overflow-x-auto">
-              <li><Link href="/" className="nav-link">Inicio</Link></li>
-              <li><Link href="/politica" className="nav-link nav-link-active">Política</Link></li>
-              <li><Link href="/economia" className="nav-link">Economía</Link></li>
-              <li><Link href="/judicial" className="nav-link">Judicial</Link></li>
-              <li><Link href="/internacional" className="nav-link">Internacional</Link></li>
-              <li><Link href="/sociedad" className="nav-link">Sociedad</Link></li>
-            </ul>
-          </div>
-        </nav>
-      </header>
-
-      {/* Breadcrumb */}
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Link href="/" className="hover:text-blue-600 transition-colors">Inicio</Link>
-          <span>/</span>
-          <span className="text-gray-900 font-semibold">Política</span>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
         {/* Category Header */}
-        <div className="mb-8 pb-6 border-b-4 border-blue-600">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mb-3">
-            Política
-          </h1>
-          <p className="text-lg text-gray-600">
-            Cobertura completa de la actualidad política argentina. Gobierno, Congreso, elecciones y análisis político.
+        <div className="mb-6 lg:mb-8 pb-4 border-b-2 border-black">
+          <div className="flex items-center gap-3 mb-2">
+            <Landmark className="w-8 h-8" style={{ color: '#0066FF' }} />
+            <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+              Política
+            </h1>
+          </div>
+          <p className="text-base lg:text-lg" style={{ color: 'var(--nyt-text-secondary)' }}>
+            Cobertura completa de la actualidad política argentina
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Column */}
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
             {/* Featured Article */}
-            <article className="article-card-featured">
-              <div className="relative h-[400px] md:h-[500px] mb-6">
-                <Image
-                  src={featuredNews.imageUrl}
-                  alt={featuredNews.title}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 66vw"
-                />
+            {featuredNews && (
+              <div className="mb-8 lg:mb-12">
+                <MainHeadline article={{
+                  id: featuredNews.id,
+                  title: featuredNews.title,
+                  subtitle: featuredNews.subtitle,
+                  excerpt: featuredNews.excerpt,
+                  image_url: featuredNews.image_url,
+                  slug: featuredNews.slug,
+                  category_slug: 'politica',
+                  published_at: featuredNews.published_at,
+                  views: featuredNews.views
+                }} />
               </div>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <span className={`category-badge ${getCategoryClass(featuredNews.categorySlug)}`}>
-                    {featuredNews.category}
-                  </span>
-                  {featuredNews.isBreaking && (
-                    <span className="text-red-600 text-sm font-bold uppercase">
-                      Última Hora
-                    </span>
-                  )}
-                </div>
-                <h2 className="article-title article-title-large text-balance">
-                  {featuredNews.title}
-                </h2>
-                {featuredNews.subtitle && (
-                  <p className="text-xl text-gray-700 font-medium text-balance">
-                    {featuredNews.subtitle}
-                  </p>
-                )}
-                <p className="article-excerpt">
-                  {featuredNews.excerpt}
+            )}
+
+            {/* Recent News */}
+            {recentNews.length > 0 ? (
+              <div className="space-y-0">
+                {recentNews.map((article) => (
+                  <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-black">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                      <div className="flex-shrink-0 md:w-[280px] lg:w-[348px]">
+                        <Link href={`/politica/${article.slug}`}>
+                          <h2 className="text-lg md:text-[20px] font-bold mb-3 md:mb-4 hover:opacity-80 transition" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                            {article.title}
+                          </h2>
+                        </Link>
+                        {article.excerpt && (
+                          <p className="text-sm md:text-[16px] leading-relaxed line-clamp-3 md:line-clamp-4 mb-3" style={{ color: 'var(--nyt-text-secondary)', fontFamily: 'var(--font-georgia)' }}>
+                            {article.excerpt}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex-shrink-0 flex-1 md:max-w-[420px] lg:max-w-[580px]">
+                        <Link href={`/politica/${article.slug}`}>
+                          {article.image_url ? (
+                            <div className="relative w-full aspect-video md:aspect-auto md:h-[240px] lg:h-[300px] overflow-hidden rounded-sm">
+                              <NewsImage
+                                src={article.image_url}
+                                alt={article.title}
+                                fill
+                                className="object-cover hover:scale-105 transition-transform duration-300"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 420px, 580px"
+                                priority={false}
+                              />
+                            </div>
+                          ) : (
+                            <div className="relative w-full aspect-video md:aspect-auto md:h-[240px] lg:h-[300px] bg-gray-100 flex items-center justify-center rounded-sm">
+                              <span className="text-gray-400 text-sm">Sin imagen</span>
+                            </div>
+                          )}
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <p className="text-lg mb-2" style={{ color: 'var(--nyt-text-gray)' }}>
+                  No hay noticias de política disponibles
                 </p>
-                <div className="article-meta">
-                  <span>Por {featuredNews.author}</span>
-                  <span>•</span>
-                  <time>
-                    {formatDistanceToNow(featuredNews.publishedAt, { 
-                      addSuffix: true, 
-                      locale: es 
-                    })}
-                  </time>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    {featuredNews.views.toLocaleString()}
-                  </span>
-                </div>
+                <Link href="/" className="text-sm hover:underline" style={{ color: '#0066FF' }}>
+                  Volver al inicio
+                </Link>
               </div>
-            </article>
-
-            {/* Top News Grid */}
-            <section>
-              <h3 className="text-2xl font-serif font-bold mb-6 pb-3 border-b-2 border-gray-900">
-                Noticias Destacadas de Política
-              </h3>
-              <div className="news-grid">
-                {topNews.map((article) => (
-                  <article key={article.id} className="article-card group cursor-pointer">
-                    <div className="relative h-48 mb-4">
-                      <Image
-                        src={article.imageUrl}
-                        alt={article.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <span className={`category-badge ${getCategoryClass(article.categorySlug)}`}>
-                        {article.category}
-                      </span>
-                      <h4 className="article-title mt-3 group-hover:text-blue-700 transition-colors line-clamp-2">
-                        {article.title}
-                      </h4>
-                      <p className="article-excerpt mt-2 line-clamp-3">
-                        {article.excerpt}
-                      </p>
-                      <div className="article-meta mt-4">
-                        <span>Por {article.author}</span>
-                        <span>•</span>
-                        <time>
-                          {formatDistanceToNow(article.publishedAt, { 
-                            addSuffix: true, 
-                            locale: es 
-                          })}
-                        </time>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            {/* More News List */}
-            <section>
-              <h3 className="text-2xl font-serif font-bold mb-6 pb-3 border-b-2 border-gray-900">
-                Más Noticias de Política
-              </h3>
-              <div className="news-list">
-                {moreNews.map((article) => (
-                  <article key={article.id} className="flex flex-col md:flex-row gap-4 pb-4 mb-4 border-b border-gray-200 last:border-0">
-                    <div className="relative w-full md:w-48 h-32 flex-shrink-0">
-                      <Image
-                        src={article.imageUrl}
-                        alt={article.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 20vw"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <span className={`category-badge ${getCategoryClass(article.categorySlug)}`}>
-                        {article.category}
-                      </span>
-                      <h4 className="article-title mt-2 hover:text-blue-700 transition-colors line-clamp-2">
-                        {article.title}
-                      </h4>
-                      <p className="article-excerpt mt-1 line-clamp-2">
-                        {article.excerpt}
-                      </p>
-                      <div className="article-meta mt-2">
-                        <span>Por {article.author}</span>
-                        <span>•</span>
-                        <time>
-                          {formatDistanceToNow(article.publishedAt, { 
-                            addSuffix: true, 
-                            locale: es 
-                          })}
-                        </time>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
+            )}
           </div>
 
           {/* Sidebar */}
-          <aside className="space-y-6">
-            {/* Trending Topics */}
-            <div className="sidebar-widget">
-              <h3 className="sidebar-title flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Temas Políticos del Momento
-              </h3>
-              <ul className="space-y-3">
-                <li className="flex items-center justify-between py-2 border-b border-gray-200">
-                  <span className="font-medium text-gray-900">Javier Milei</span>
-                  <span className="text-sm text-gray-500">15.2K</span>
-                </li>
-                <li className="flex items-center justify-between py-2 border-b border-gray-200">
-                  <span className="font-medium text-gray-900">Cristina Kirchner</span>
-                  <span className="text-sm text-gray-500">12.8K</span>
-                </li>
-                <li className="flex items-center justify-between py-2 border-b border-gray-200">
-                  <span className="font-medium text-gray-900">Congreso Nacional</span>
-                  <span className="text-sm text-gray-500">9.5K</span>
-                </li>
-                <li className="flex items-center justify-between py-2 border-b border-gray-200">
-                  <span className="font-medium text-gray-900">Reforma Económica</span>
-                  <span className="text-sm text-gray-500">8.3K</span>
-                </li>
-                <li className="flex items-center justify-between py-2 border-b border-gray-200">
-                  <span className="font-medium text-gray-900">Elecciones 2025</span>
-                  <span className="text-sm text-gray-500">7.1K</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Most Read */}
-            <div className="sidebar-widget bg-gray-50">
-              <h3 className="sidebar-title">
-                Más Leídas en Política
-              </h3>
-              <ol className="space-y-4">
-                {noticiasPolitica.slice(0, 5).map((article, index) => (
-                  <li key={article.id} className="flex gap-3">
-                    <span className="text-3xl font-bold text-blue-600">{index + 1}</span>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-semibold text-gray-900 hover:text-blue-700 transition-colors line-clamp-2 cursor-pointer">
-                        {article.title}
-                      </h4>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {article.views.toLocaleString()} vistas
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            {/* Newsletter */}
-            <div className="sidebar-widget bg-blue-50 border-blue-200">
-              <h3 className="sidebar-title text-blue-900 border-blue-900">
-                Newsletter Política
-              </h3>
-              <p className="text-sm text-gray-700 mb-4">
-                Recibe las noticias políticas más importantes en tu email
-              </p>
-              <form className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:border-blue-500"
-                />
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-2 font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  Suscribirse
-                </button>
-              </form>
-            </div>
-          </aside>
+          <div className="hidden lg:block lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
+            <Sidebar
+              featuredArticle={sidebarNews[0] ? {
+                id: sidebarNews[0].id,
+                title: sidebarNews[0].title,
+                excerpt: sidebarNews[0].excerpt,
+                image_url: sidebarNews[0].image_url,
+                slug: sidebarNews[0].slug,
+                category_slug: 'politica',
+                published_at: sidebarNews[0].published_at
+              } : undefined}
+              sideArticles={sidebarNews.slice(1).map(a => ({
+                id: a.id,
+                title: a.title,
+                image_url: a.image_url,
+                slug: a.slug,
+                category_slug: 'politica',
+                published_at: a.published_at
+              }))}
+            />
+          </div>
         </div>
       </main>
 
@@ -358,11 +233,10 @@ export default function PoliticaPage() {
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
-            <p>&copy; 2025 Política Argentina. Todos los derechos reservados.</p>
+            <p>&copy; {new Date().getFullYear()} Política Argentina. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
     </div>
   );
 }
-

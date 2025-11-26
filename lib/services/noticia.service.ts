@@ -127,15 +127,16 @@ export class NoticiaService {
       }
 
       // Set defaults
-      const noticiaData: Partial<Noticia> = {
+      const noticiaData: any = {
         ...data,
         status: data.status || 'draft',
         views: 0,
+        source_type: (data as any).source_type ?? 1, // Default to manual (1)
         published_at: data.published_at || new Date().toISOString(),
       };
 
       const noticia = await noticiaRepo.create(noticiaData);
-      
+
       // Invalidate relevant caches
       this.invalidateCache();
 

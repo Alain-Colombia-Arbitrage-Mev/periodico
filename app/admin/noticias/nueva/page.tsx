@@ -42,20 +42,27 @@ export default function NuevaNoticiaPage() {
     setIsSaving(true);
 
     try {
-      // Aquí iría la llamada a la API para guardar la noticia
-      // await fetch('/api/noticias', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData),
-      // });
+      const response = await fetch('/api/noticias', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          source_type: 1, // 0x01 (1) = manual, 0x00 (0) = scraper + LLM
+          status: 'published',
+          tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
+        }),
+      });
 
-      // Simulación de guardado
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al crear la noticia');
+      }
+
       alert('Noticia creada exitosamente');
       router.push('/admin/noticias');
     } catch (error) {
-      alert('Error al crear la noticia');
+      alert(error instanceof Error ? error.message : 'Error al crear la noticia');
     } finally {
       setIsSaving(false);
     }

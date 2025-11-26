@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS noticias (
   views INTEGER NOT NULL DEFAULT 0,
   status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
   is_breaking BOOLEAN NOT NULL DEFAULT FALSE,
+  source_type INTEGER NOT NULL DEFAULT 1 CHECK (source_type IN (0, 1)),
+  source_url TEXT,
   published_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -87,6 +89,8 @@ CREATE INDEX idx_noticias_status ON noticias(status);
 CREATE INDEX idx_noticias_published_at ON noticias(published_at DESC);
 CREATE INDEX idx_noticias_views ON noticias(views DESC);
 CREATE INDEX idx_noticias_is_breaking ON noticias(is_breaking) WHERE is_breaking = TRUE;
+CREATE INDEX idx_noticias_source_type ON noticias(source_type);
+CREATE INDEX idx_noticias_source_url ON noticias(source_url);
 
 -- Full-text search index
 CREATE INDEX idx_noticias_search ON noticias USING gin(to_tsvector('spanish', title || ' ' || excerpt || ' ' || content));
@@ -278,6 +282,8 @@ COMMENT ON COLUMN noticias.slug IS 'URL-friendly identifier generado del título
 COMMENT ON COLUMN noticias.status IS 'Estado: draft, published, archived';
 COMMENT ON COLUMN noticias.is_breaking IS 'Marca si es noticia de última hora';
 COMMENT ON COLUMN noticias.views IS 'Contador de visualizaciones';
+COMMENT ON COLUMN noticias.source_type IS 'Origen de la noticia: 0=scraper automático, 1=publicación manual';
+COMMENT ON COLUMN noticias.source_url IS 'URL de origen si la noticia proviene del scraper';
 
 -- ============================================
 -- PERMISOS

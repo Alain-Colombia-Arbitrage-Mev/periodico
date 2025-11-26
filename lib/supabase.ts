@@ -53,10 +53,11 @@ export interface Noticia {
   excerpt: string;
   content: string;
   image_url: string;
-  author_id: string;
   views: number;
   status: 'draft' | 'published' | 'archived';
   is_breaking: boolean;
+  source_type: number;  // 0x00 (0) = scraper + LLM, 0x01 (1) = manual
+  source_url?: string;
   published_at?: string;
   created_at: string;
   updated_at: string;
@@ -99,26 +100,42 @@ export interface NoticiaTag {
 export const supabaseHelpers = {
   // Noticias
   async getNoticias(filters?: {
-    category?: string;
+    category?: string;  // Can be category UUID or category slug
     status?: string;
+    source_type?: number;  // 0x00 (0) = scraper + LLM, 0x01 (1) = manual
     limit?: number;
     offset?: number;
+    onlyRecent?: boolean;  // Filter only last 72 hours
   }) {
+    // Use inner join only if filtering by category, otherwise use left join
+    const joinType = filters?.category ? 'categorias!inner(name, slug, color)' : 'categorias(name, slug, color)';
+
     let query = supabase
       .from('noticias')
       .select(`
         *,
-        categorias(name, slug, color),
-        usuarios(name, email)
+        ${joinType}
       `)
+      .order('published_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
+    // Filter only recent news (last 72 hours) only if explicitly requested
+    if (filters?.onlyRecent === true) {
+      const hoursAgo72 = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+      query = query.or(`published_at.gte.${hoursAgo72},created_at.gte.${hoursAgo72}`);
+    }
+
     if (filters?.category) {
-      query = query.eq('category_id', filters.category);
+      // Filter by category slug using inner join
+      query = query.eq('categorias.slug', filters.category);
     }
 
     if (filters?.status) {
       query = query.eq('status', filters.status);
+    }
+
+    if (filters?.source_type !== undefined) {
+      query = query.eq('source_type', filters.source_type);
     }
 
     if (filters?.limit) {
@@ -137,11 +154,21 @@ export const supabaseHelpers = {
       .from('noticias')
       .select(`
         *,
-        categorias(name, slug, color),
-        usuarios(name, email)
+        categorias(name, slug, color)
       `)
       .eq('id', id)
       .single();
+  },
+
+  async getNoticiaBySlug(slug: string) {
+    return supabase
+      .from('noticias')
+      .select(`
+        *,
+        categorias(name, slug, color)
+      `)
+      .eq('slug', slug)
+      .eq('status', 'published');
   },
 
   async createNoticia(noticia: Database['public']['Tables']['noticias']['Insert']) {
@@ -193,6 +220,42 @@ export const supabaseHelpers = {
       .from('noticias_tags')
       .select('tags(*)')
       .eq('noticia_id', noticiaId);
+  },
+
+  async getNoticiasByTag(tagName: string) {
+    // Primero obtener el tag por nombre
+    const { data: tag } = await supabase
+      .from('tags')
+      .select('id')
+      .ilike('name', tagName)
+      .single();
+
+    if (!tag) {
+      return { data: [], error: null };
+    }
+
+    // Luego obtener las noticias que tienen ese tag
+    const { data: noticiasTags } = await supabase
+      .from('noticias_tags')
+      .select('noticia_id')
+      .eq('tag_id', tag.id);
+
+    if (!noticiasTags || noticiasTags.length === 0) {
+      return { data: [], error: null };
+    }
+
+    const noticiaIds = noticiasTags.map(nt => nt.noticia_id);
+
+    // Obtener las noticias completas
+    return supabase
+      .from('noticias')
+      .select(`
+        *,
+        categorias(name, slug, color)
+      `)
+      .in('id', noticiaIds)
+      .eq('status', 'published')
+      .order('published_at', { ascending: false, nullsFirst: false });
   },
 };
 

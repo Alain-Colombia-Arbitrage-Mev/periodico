@@ -317,6 +317,40 @@ export async function timeout<T>(
 }
 
 // ============================================
+// SUPABASE IMAGE UTILITIES
+// ============================================
+export function getSupabaseImageUrl(imagePath: string): string {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+  if (!supabaseUrl) {
+    console.warn('NEXT_PUBLIC_SUPABASE_URL is not defined');
+    return imagePath;
+  }
+
+  // Si ya es una URL completa de Supabase Storage (API o S3), devolverla tal cual
+  if (imagePath.includes('supabase.co/storage/v1/object/public/') ||
+      imagePath.includes('supabase.co/storage/v1/s3/')) {
+    return imagePath;
+  }
+
+  // Si es una URL completa de otro servicio, devolverla tal cual
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+
+  // Si es solo el nombre del archivo o path relativo, construir la URL completa
+  // Remover cualquier slash inicial
+  const cleanPath = imagePath.startsWith('/') ? imagePath.slice(1) : imagePath;
+
+  // Construir URL usando el endpoint público de Supabase
+  return `${supabaseUrl}/storage/v1/object/public/noticias/${cleanPath}`;
+}
+
+export function isSupabaseImage(imagePath: string): boolean {
+  return imagePath.includes('supabase.co');
+}
+
+// ============================================
 // LOCAL STORAGE UTILITIES
 // ============================================
 export const storage = {

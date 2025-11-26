@@ -1,21 +1,87 @@
-version: "3.9"
+version: '3.8'
+
 services:
-  app:
-    build: .
-    container_name: politica-argentina-app
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - DATABASE_URL=${DATABASE_URL}
-      - BUILT_IN_FORGE_API_URL=${BUILT_IN_FORGE_API_URL}
-      - BUILT_IN_FORGE_API_KEY=${BUILT_IN_FORGE_API_KEY}
-      - OAUTH_SERVER_URL=${OAUTH_SERVER_URL}
-      - VITE_APP_ID=${VITE_APP_ID}
-      - VITE_ANALYTICS_ENDPOINT=${VITE_ANALYTICS_ENDPOINT}
-      - VITE_ANALYTICS_WEBSITE_ID=${VITE_ANALYTICS_WEBSITE_ID}
+  # ====================================
+  # Next.js App
+  # ====================================
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: politica-argentina:latest
+    container_name: politica-argentina-web
+    restart: unless-stopped
     ports:
       - "3000:3000"
-    restart: unless-stopped
+    environment:
+      # Supabase
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      # Node
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - politica-network
 
+  # ====================================
+  # Scraper Service
+  # ====================================
+  scraper:
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    image: politica-argentina-scraper:latest
+    container_name: politica-argentina-scraper
+    restart: unless-stopped
+    env_file:
+      - ./scraper/.env
+    environment:
+      # Supabase
+      - SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - SUPABASE_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      # OpenRouter
+      - OPENROUTER_API_KEY=${Openrouter_key:-}
+      - LLM_MODEL=${Openrouter_model:-deepseek/deepseek-v3.2-exp}
+      - LLM_REWRITE_ENABLED=true
+      # Scraper
+      - SCRAPE_INTERVAL=3600  # 1 hour (was 43200 = 12 hours) - 12x more frequent updates
+      - MAX_ARTICLES_PER_CATEGORY=30  # Increased from 20 to 30 for more content
+      - DELETE_OLD_ARTICLES=true
+      - OLD_ARTICLES_DAYS=3
+      - PAGE_TIMEOUT=30000
+      - DOWNLOAD_IMAGES=true
+      - IMAGE_QUALITY=85
+      - MAX_IMAGE_SIZE=2048
+      # Logging
+      - LOG_LEVEL=INFO
+      - RUN_MODE=continuous
+      # Stealth
+      - STEALTH_ENABLED=true
+      - STEALTH_REQUESTS_PER_MINUTE=10
+      - STEALTH_MIN_DELAY=2.0
+      - STEALTH_MAX_DELAY=5.0
+    volumes:
+      - ./scraper/logs:/app/logs
+      - ./scraper/data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - politica-network
+    depends_on:
+      - web
+
+networks:
+  politica-network:
+    driver: bridge

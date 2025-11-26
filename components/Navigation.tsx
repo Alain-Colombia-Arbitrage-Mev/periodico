@@ -82,14 +82,14 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="bg-gray-900 text-white py-2 text-sm">
+      {/* Top Bar - Estilo La Nación */}
+      <div className="top-bar">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 text-xs">
               <span className="text-gray-400">📍 Buenos Aires, Argentina</span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-400">
+              <span className="hidden md:inline text-gray-600">|</span>
+              <span className="hidden md:inline text-gray-400">
                 {new Date().toLocaleDateString('es-AR', {
                   weekday: 'long',
                   year: 'numeric',
@@ -98,8 +98,8 @@ export default function Navigation() {
                 })}
               </span>
             </div>
-            <div className="hidden md:flex items-center gap-4">
-              <button className="text-gray-400 hover:text-white transition-colors">
+            <div className="hidden md:flex items-center gap-4 text-xs">
+              <button className="text-gray-400 hover:text-white transition-colors" style={{color: 'var(--ln-blue-primary)'}}>
                 <Bell className="w-4 h-4" />
               </button>
               <a href="https://twitter.com/politicaarg" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
@@ -113,35 +113,38 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Main Header */}
+      {/* Main Header - Estilo La Nación */}
       <header
         className={cn(
-          'sticky top-0 z-50 bg-white transition-all duration-300',
-          isScrolled ? 'shadow-md' : 'border-b border-gray-200'
+          'main-header transition-all duration-300',
+          isScrolled && 'shadow-sm'
         )}
       >
         <div className="container mx-auto px-4">
           {/* Logo and Actions */}
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-between py-3">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-gray-100 rounded transition-colors"
               aria-label="Toggle menu"
+              style={{color: 'var(--ln-neutral-800)'}}
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
 
-            {/* Logo */}
+            {/* Logo - Estilo La Nación */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">PA</span>
+              <div className="w-12 h-12 flex items-center justify-center" style={{backgroundColor: 'var(--ln-blue-primary)'}}>
+                <span className="text-white font-bold text-2xl">LA</span>
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-2xl font-serif font-bold text-gray-900">
+                <h1 className="logo-text text-2xl md:text-3xl">
                   Política Argentina
                 </h1>
-                <p className="text-xs text-gray-500">El portal líder de noticias políticas</p>
+                <p className="text-xs" style={{color: 'var(--ln-neutral-400)'}}>
+                  Noticias en tiempo real
+                </p>
               </div>
             </Link>
 
@@ -149,14 +152,18 @@ export default function Navigation() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded transition-colors"
                 aria-label="Search"
+                style={{color: 'var(--ln-neutral-800)'}}
               >
                 <Search className="w-5 h-5" />
               </button>
               <Link
                 href="/admin"
-                className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="hidden md:inline-flex items-center gap-2 px-4 py-2 text-white rounded text-sm font-medium transition-colors"
+                style={{backgroundColor: 'var(--ln-blue-primary)'}}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--ln-blue-dark)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--ln-blue-primary)'}
               >
                 Admin
               </Link>
@@ -178,20 +185,20 @@ export default function Navigation() {
             </div>
           )}
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:block border-t border-gray-200">
-            <ul className="flex items-center gap-1">
+          {/* Desktop Navigation - Estilo La Nación */}
+          <nav className="hidden lg:block" style={{borderTop: '1px solid var(--ln-neutral-200)'}}>
+            <ul className="flex items-center gap-0">
               <li>
                 <Link
                   href="/"
                   className={cn(
-                    'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors rounded-lg',
+                    'nav-link flex items-center gap-2 px-4 py-3 border-b-2 transition-all',
                     pathname === '/'
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'nav-link-active'
+                      : 'border-transparent hover:border-gray-300'
                   )}
                 >
-                  🏠 Inicio
+                  🏠 <span className="hidden xl:inline">Inicio</span>
                 </Link>
               </li>
               {categories.map((category) => (
@@ -199,14 +206,14 @@ export default function Navigation() {
                   <Link
                     href={`/${category.slug}`}
                     className={cn(
-                      'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors rounded-lg',
+                      'nav-link flex items-center gap-2 px-4 py-3 border-b-2 transition-all',
                       isActive(category.slug)
-                        ? `${getCategoryColor(category.color)} font-semibold`
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'nav-link-active font-semibold'
+                        : 'border-transparent hover:border-gray-300'
                     )}
                   >
-                    <span>{category.icon}</span>
-                    {category.name}
+                    <span className="lg:hidden xl:inline">{category.icon}</span>
+                    <span>{category.name}</span>
                   </Link>
                 </li>
               ))}

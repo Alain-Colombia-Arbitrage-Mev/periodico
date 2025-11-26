@@ -1,7 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+
+  // Output standalone for Docker
+  output: 'standalone',
+
+  // Suppress Cloudflare cookie warnings in development
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+
   // Force complete rebuild - no cache
   generateBuildId: async () => {
     return `build-${Date.now()}-complete-rebuild`;
@@ -9,6 +18,7 @@ const nextConfig = {
   
   // Image Optimization
   images: {
+    unoptimized: false, // Habilitar optimización solo para Supabase
     remotePatterns: [
       {
         protocol: 'https',
@@ -18,6 +28,100 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'source.unsplash.com',
+        pathname: '/**',
+      },
+      // Supabase Storage (fuente principal de imágenes)
+      {
+        protocol: 'https',
+        hostname: 'dnacsmoubqrzpbvjhary.supabase.co',
+        pathname: '/**',
+      },
+      // Placeholder para artículos sin imagen
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+        pathname: '/**',
+      },
+      // Sitios de noticias argentinos
+      {
+        protocol: 'https',
+        hostname: 'www.cronista.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.lanacion.com.ar',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bucket1.glanacion.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bucket2.glanacion.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bucket3.glanacion.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'resizer.glanacion.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.clarin.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cloudfront-us-east-1.images.arcpublishing.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.infobae.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.perfil.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.ambito.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.pagina12.com.ar',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.pagina12.com.ar',
+        pathname: '/**',
+      },
+      // CDNs comunes
+      {
+        protocol: 'https',
+        hostname: '*.cloudfront.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudinary.com',
         pathname: '/**',
       },
     ],
@@ -38,8 +142,19 @@ const nextConfig = {
   // Headers for Security and Performance
   async headers() {
     return [
+      // Static assets - allow Next.js to set correct MIME types
       {
-        source: '/:path*',
+        source: '/_next/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Security headers for HTML pages only (exclude static assets)
+      {
+        source: '/((?!_next|api).*)',
         headers: [
           {
             key: 'X-DNS-Prefetch-Control',

@@ -3,137 +3,333 @@
 @tailwind utilities;
 
 :root {
-  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-playfair: 'Playfair Display', Georgia, serif;
+  /* NYT Brand Colors */
+  --nyt-black: #121212;
+  --nyt-white: #FFFFFF;
+  --nyt-border: #DFDFDF;
+  --nyt-bg-gray: #F7F7F7;
+  --nyt-text-primary: #121212;
+  --nyt-text-secondary: #363636;
+  --nyt-text-gray: #727272;
+
+  /* NYT Fonts */
+  --font-nyt-franklin: 'nyt-franklin', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-nyt-cheltenham: 'nyt-cheltenham', Georgia, 'Times New Roman', serif;
+  --font-georgia: Georgia, 'Times New Roman', serif;
+  --font-helvetica: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Semantic Colors - NYT Style */
+  --color-success: #067A45;
+  --color-danger: #D0021B;
+  --color-warning: #F7C948;
+  --color-info: #326891;
+
+  /* NYT Spacing - More generous */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2.5rem;
+  --spacing-2xl: 4rem;
+
+  /* Typography Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
 }
 
 @layer base {
   html {
     @apply scroll-smooth antialiased;
   }
-  
+
   body {
-    @apply bg-white text-gray-900 font-sans;
+    background-color: var(--nyt-white);
+    color: var(--nyt-text-primary);
+    font-family: var(--font-georgia);
+    font-size: 16px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    font-family: var(--font-georgia);
+    color: var(--nyt-text-primary);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 3vw, 1.875rem);
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--nyt-text-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+
+  /* Better tap targets for mobile */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Smooth scrolling on mobile */
+  @media (max-width: 768px) {
+    html {
+      scroll-padding-top: 80px;
+    }
   }
 }
 
 @layer components {
-  /* Breaking News Bar */
-  .breaking-news-bar {
-    @apply bg-red-600 text-white py-2 px-4 text-sm font-semibold;
+  /* NYT Button Styles */
+  .nyt-button {
+    min-height: 44px; /* Better touch target */
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .bloomberg-logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--bloomberg-yellow);
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  .bloomberg-nav-link {
+    @apply text-sm font-semibold uppercase tracking-wide transition-colors;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-bottom: 3px solid transparent;
+  }
+
+  .bloomberg-nav-link:hover {
+    color: var(--bloomberg-yellow);
+    border-bottom-color: var(--bloomberg-yellow);
+  }
+
+  .bloomberg-nav-link-active {
+    color: var(--bloomberg-yellow);
+    border-bottom-color: var(--bloomberg-yellow);
+  }
+
+  /* Bloomberg Market Banner */
+  .market-banner {
+    background-color: var(--bloomberg-dark-bg-secondary);
+    @apply text-white py-2 text-xs font-medium;
+    border-bottom: 1px solid var(--bloomberg-gray-800);
+  }
+
+  .market-item {
+    @apply flex items-center gap-2;
+  }
+
+  .market-value-up {
+    color: var(--color-success);
+  }
+
+  .market-value-down {
+    color: var(--color-danger);
+  }
+
+  /* Bloomberg Cards */
+  .bloomberg-card {
+    @apply bg-white transition-all duration-200;
+    border: 1px solid var(--bloomberg-gray-200);
+  }
+
+  .bloomberg-card:hover {
+    border-color: var(--bloomberg-yellow);
+    box-shadow: 0 4px 12px rgba(247, 147, 26, 0.15);
+  }
+
+  .bloomberg-card-featured {
+    @apply bg-white;
+    border-left: 4px solid var(--bloomberg-yellow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Bloomberg Headlines */
+  .bloomberg-headline {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--bloomberg-black);
+    letter-spacing: -0.02em;
+    transition: color 0.2s ease;
+  }
+
+  .bloomberg-headline:hover {
+    color: var(--bloomberg-yellow);
+  }
+
+  .bloomberg-headline-large {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+
+  .bloomberg-excerpt {
+    @apply text-base leading-relaxed;
+    color: var(--bloomberg-gray-600);
+  }
+
+  /* Bloomberg Category Tags */
+  .bloomberg-category {
+    @apply inline-block px-3 py-1 text-xs font-bold uppercase tracking-wider;
+    background-color: var(--bloomberg-black);
+    color: white;
+  }
+
+  .bloomberg-category-economia {
+    background-color: var(--color-success);
+  }
+
+  .bloomberg-category-politica {
+    background-color: var(--color-info);
+  }
+
+  .bloomberg-category-judicial {
+    background-color: var(--color-danger);
+  }
+
+  .bloomberg-category-internacional {
+    background-color: var(--bloomberg-gray-700);
+  }
+
+  /* Bloomberg Data Widgets */
+  .data-widget {
+    @apply bg-white p-4 border border-gray-200;
+  }
+
+  .data-widget-header {
+    @apply text-xs font-bold uppercase tracking-wider mb-3;
+    color: var(--bloomberg-gray-500);
+  }
+
+  .data-widget-value {
+    @apply text-2xl font-bold;
+    color: var(--bloomberg-black);
+  }
+
+  .data-widget-change {
+    @apply text-sm font-semibold mt-1;
+  }
+
+  .data-widget-change-up {
+    color: var(--color-success);
+  }
+
+  .data-widget-change-down {
+    color: var(--color-danger);
+  }
+
+  /* Bloomberg Article Meta */
+  .bloomberg-meta {
+    @apply flex items-center gap-3 text-xs;
+    color: var(--bloomberg-gray-500);
+    font-weight: 500;
+  }
+
+  .bloomberg-meta-separator {
+    width: 2px;
+    height: 2px;
+    background-color: var(--bloomberg-gray-400);
+    border-radius: 50%;
+  }
+
+  /* Bloomberg Breaking News */
+  .breaking-banner {
+    background-color: var(--color-danger);
+    @apply text-white py-2 px-4;
     animation: slideDown 0.3s ease-out;
   }
-  
-  /* Top Bar */
-  .top-bar {
-    @apply bg-gray-900 text-gray-300 text-xs py-2;
+
+  .breaking-label {
+    @apply inline-block px-2 py-1 text-xs font-bold uppercase mr-3;
+    background-color: white;
+    color: var(--color-danger);
   }
-  
-  /* Main Header */
-  .main-header {
-    @apply bg-white border-b border-gray-200 sticky top-0 z-50;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+  /* Bloomberg Sidebar */
+  .bloomberg-sidebar {
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
   }
-  
-  /* Logo */
-  .logo-text {
-    @apply font-serif text-3xl font-bold text-gray-900 tracking-tight;
-    font-family: var(--font-playfair);
+
+  .sidebar-section {
+    @apply mb-6 pb-6;
+    border-bottom: 2px solid var(--bloomberg-gray-200);
   }
-  
-  /* Navigation */
-  .nav-link {
-    @apply text-gray-700 hover:text-gray-900 font-medium text-sm uppercase tracking-wide transition-colors duration-200;
+
+  .sidebar-section:last-child {
+    border-bottom: none;
   }
-  
-  .nav-link-active {
-    @apply text-gray-900 border-b-2 border-gray-900;
+
+  .sidebar-title {
+    @apply text-sm font-bold uppercase tracking-wider mb-4;
+    color: var(--bloomberg-black);
   }
-  
-  /* Article Card */
-  .article-card {
-    @apply bg-white rounded-none border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200;
+
+  /* Bloomberg Footer */
+  .bloomberg-footer {
+    background-color: var(--bloomberg-black);
+    @apply text-gray-400;
   }
-  
-  .article-card-featured {
-    @apply border-none shadow-sm hover:shadow-md;
+
+  .footer-link {
+    @apply text-sm transition-colors;
+    color: var(--bloomberg-gray-400);
   }
-  
-  /* Typography */
-  .article-title {
-    @apply font-serif text-xl md:text-2xl font-bold text-gray-900 leading-tight;
-    font-family: var(--font-playfair);
+
+  .footer-link:hover {
+    color: var(--bloomberg-yellow);
   }
-  
-  .article-title-large {
-    @apply text-2xl md:text-4xl;
+
+  /* Bloomberg Layouts */
+  .bloomberg-container {
+    @apply max-w-[1440px] mx-auto px-4 lg:px-8;
   }
-  
-  .article-excerpt {
-    @apply text-gray-600 text-sm md:text-base leading-relaxed;
-  }
-  
-  /* Category Badge */
-  .category-badge {
-    @apply inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-none;
-  }
-  
-  .category-politica {
-    @apply bg-blue-600 text-white;
-  }
-  
-  .category-economia {
-    @apply bg-green-600 text-white;
-  }
-  
-  .category-judicial {
-    @apply bg-red-600 text-white;
-  }
-  
-  .category-internacional {
-    @apply bg-purple-600 text-white;
-  }
-  
-  .category-sociedad {
-    @apply bg-orange-600 text-white;
-  }
-  
-  /* Metadata */
-  .article-meta {
-    @apply text-xs text-gray-500 flex items-center gap-3;
-  }
-  
-  /* Grid Layouts */
-  .news-grid {
+
+  .bloomberg-grid {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
   }
-  
-  .news-list {
-    @apply space-y-4;
+
+  .bloomberg-grid-dense {
+    @apply grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4;
   }
-  
-  /* Sidebar */
-  .sidebar-widget {
-    @apply bg-gray-50 border border-gray-200 p-6;
-  }
-  
-  .sidebar-title {
-    @apply font-serif text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-gray-900;
-  }
-  
-  /* Footer */
-  .footer-section {
-    @apply bg-gray-900 text-gray-300;
-  }
-  
-  .footer-link {
-    @apply text-gray-400 hover:text-white transition-colors duration-200;
-  }
-  
+
   /* Utilities */
   .line-clamp-2 {
     display: -webkit-box;
@@ -141,25 +337,54 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
+
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  
-  .line-clamp-4 {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+
+  /* Bloomberg Hero Section */
+  .bloomberg-hero {
+    background: linear-gradient(135deg, var(--bloomberg-dark-bg) 0%, var(--bloomberg-dark-bg-secondary) 100%);
+    @apply text-white py-12;
+    border-bottom: 4px solid var(--bloomberg-yellow);
+  }
+
+  .bloomberg-hero-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+  }
+
+  .bloomberg-hero-excerpt {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.5;
+    color: var(--bloomberg-gray-300);
+    max-width: 800px;
   }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Focus States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    --tw-ring-color: var(--bloomberg-yellow);
+  }
+
+  /* Gradient Text */
+  .gradient-text-bloomberg {
+    background: linear-gradient(135deg, var(--bloomberg-yellow) 0%, #FFA500 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
@@ -176,35 +401,36 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+@keyframes pulse-bloomberg {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(247, 147, 26, 0.4);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    box-shadow: 0 0 0 10px rgba(247, 147, 26, 0);
   }
-}
-
-.animate-slideDown {
-  animation: slideDown 0.3s ease-out;
 }
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+.animate-pulse-bloomberg {
+  animation: pulse-bloomberg 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bloomberg-hero {
+    @apply py-8;
+  }
+
+  .bloomberg-grid-dense {
+    @apply grid-cols-2;
+  }
 }
 
 /* Print Styles */
@@ -212,17 +438,19 @@
   .no-print {
     display: none !important;
   }
-  
+
   body {
     @apply text-black bg-white;
   }
-  
-  .article-title {
-    @apply text-2xl;
-  }
 }
 
-/* Dark Mode Support (Optional) */
-@media (prefers-color-scheme: dark) {
-  /* Add dark mode styles if needed */
+/* Performance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
