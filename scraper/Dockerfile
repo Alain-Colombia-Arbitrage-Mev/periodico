@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
 # ============================================================================
-# News Scraper - Lightweight version using RSS (no browser required)
+# News Scraper - Lightweight RSS version (NO PLAYWRIGHT - NO BROWSER)
+# Updated: 2024-11-26 - Force rebuild without Playwright
 # ============================================================================
 
 FROM python:3.11-slim
