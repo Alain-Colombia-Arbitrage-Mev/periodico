@@ -41,8 +41,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core dependencies
     ca-certificates \
     wget \
-    # Chromium dependencies
+    # Fonts (using correct package names for Debian Trixie)
     fonts-liberation \
+    fonts-ubuntu \
+    fonts-unifont \
+    fonts-noto-color-emoji \
+    # Chromium dependencies
     libasound2 \
     libatk-bridge2.0-0 \
     libatk1.0-0 \
@@ -72,8 +76,8 @@ COPY --from=builder /install /install
 # Set working directory
 WORKDIR /app
 
-# Install Playwright Chromium (in final stage to use runtime environment)
-RUN playwright install chromium --with-deps
+# Install Playwright Chromium (dependencies already installed above)
+RUN playwright install chromium
 
 # Copy application code
 COPY src/ ./src/
