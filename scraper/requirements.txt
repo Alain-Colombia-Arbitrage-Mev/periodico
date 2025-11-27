@@ -16,9 +16,8 @@ alembic==1.13.1
 redis==5.0.1
 hiredis==2.3.2
 
-# Image Processing
+# Image Processing (PIL only - no OpenCV needed)
 Pillow==10.2.0
-opencv-python-headless==4.9.0.80  # Computer Vision for image quality assessment
 
 # Data Handling
 pydantic==2.6.0

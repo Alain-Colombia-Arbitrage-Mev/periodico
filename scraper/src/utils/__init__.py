@@ -1,7 +1,6 @@
 """
-Utils package
+Utils package - Lightweight for Railway deployment
 """
 from .logger import setup_logger, get_logger
-from .image_handler import ImageHandler
 
-__all__ = ['setup_logger', 'get_logger', 'ImageHandler']
+__all__ = ['setup_logger', 'get_logger']
