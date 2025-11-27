@@ -1,4 +1,5 @@
-# Web Scraping (RSS-based, no browser needed)
+# Web Scraping (Full browser support with Playwright)
+playwright==1.49.0
 beautifulsoup4==4.12.3
 lxml==5.1.0
 html5lib==1.1
@@ -16,8 +17,9 @@ alembic==1.13.1
 redis==5.0.1
 hiredis==2.3.2
 
-# Image Processing (PIL only - no OpenCV needed)
+# Image Processing (Full CV support)
 Pillow==10.2.0
+opencv-python-headless==4.9.0.80
 
 # Data Handling
 pydantic==2.6.0

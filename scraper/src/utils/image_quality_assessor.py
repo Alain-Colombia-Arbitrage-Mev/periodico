@@ -1,8 +1,10 @@
 """
-Image Quality Assessment using PIL only (no OpenCV required)
-Lightweight version for serverless/Railway deployment
+Image Quality Assessment using Computer Vision
+Filters out logos, blurry images, and low-quality content images
 """
-from PIL import Image, ImageFilter, ImageStat
+import cv2
+import numpy as np
+from PIL import Image
 from pathlib import Path
 from typing import Dict, Optional
 from loguru import logger
@@ -10,63 +12,51 @@ from loguru import logger
 
 class ImageQualityAssessor:
     """
-    Lightweight image quality assessment using PIL only
+    Advanced Computer Vision-based image quality assessment
     Detects and filters out:
+    - Blurry images (Laplacian variance)
     - Logos and icons (limited color palette)
-    - Small/low-quality images
     - Low-contrast images
+    - Small/low-quality images
     """
 
     # Thresholds
-    MIN_COLOR_DIVERSITY = 1000  # Unique colors - images below are likely logos
-    MIN_WIDTH = 300
-    MIN_HEIGHT = 200
+    BLUR_THRESHOLD = 100.0
+    MIN_COLOR_DIVERSITY = 1000
+    MIN_EDGE_DENSITY = 0.05
+    MIN_BRIGHTNESS = 40
+    MAX_BRIGHTNESS = 220
     MIN_CONTRAST = 30
 
     @staticmethod
     def assess_sharpness(image_path: Path) -> Dict:
-        """
-        Detect blurry images using edge detection with PIL
-        """
+        """Detect blurry images using Laplacian variance"""
         try:
-            img = Image.open(image_path)
-            if img.mode != 'L':
-                img = img.convert('L')
+            img = cv2.imread(str(image_path))
+            if img is None:
+                return {'laplacian_variance': 0, 'is_sharp': False, 'sharpness_score': 0.0}
 
-            # Use edge filter to detect sharpness
-            edges = img.filter(ImageFilter.FIND_EDGES)
-            stat = ImageStat.Stat(edges)
-            edge_mean = stat.mean[0]
-
-            # Higher edge mean = sharper image
-            is_sharp = edge_mean > 10
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            laplacian_var = cv2.Laplacian(gray, cv2.CV_64F).var()
 
             return {
-                'edge_mean': edge_mean,
-                'is_sharp': is_sharp,
-                'sharpness_score': min(edge_mean / 30.0, 1.0)
+                'laplacian_variance': laplacian_var,
+                'is_sharp': laplacian_var >= ImageQualityAssessor.BLUR_THRESHOLD,
+                'sharpness_score': min(laplacian_var / 200.0, 1.0)
             }
         except Exception as e:
             logger.error(f"Error assessing sharpness: {e}")
-            return {
-                'edge_mean': 0,
-                'is_sharp': False,
-                'sharpness_score': 0.0
-            }
+            return {'laplacian_variance': 0, 'is_sharp': False, 'sharpness_score': 0.0}
 
     @staticmethod
     def assess_color_diversity(image_path: Path) -> Dict:
-        """
-        Detect logos and icons by analyzing color palette
-        """
+        """Detect logos and icons by analyzing color palette"""
         try:
             img = Image.open(image_path)
-
             if img.mode != 'RGB':
                 img = img.convert('RGB')
 
             colors = img.getcolors(maxcolors=10000)
-
             if colors is None:
                 return {
                     'unique_colors': 10000,
@@ -96,25 +86,47 @@ class ImageQualityAssessor:
             }
 
     @staticmethod
-    def assess_brightness_contrast(image_path: Path) -> Dict:
-        """
-        Detect washed out or too dark images using PIL
-        """
+    def detect_edges(image_path: Path) -> Dict:
+        """Measure edge complexity using Canny edge detection"""
         try:
-            img = Image.open(image_path)
-            if img.mode != 'L':
-                gray = img.convert('L')
-            else:
-                gray = img
+            img = cv2.imread(str(image_path))
+            if img is None:
+                return {'edge_density': 0.0, 'is_complex': False, 'edge_score': 0.0}
 
-            stat = ImageStat.Stat(gray)
-            mean_brightness = stat.mean[0]
-            std_brightness = stat.stddev[0]
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            edges = cv2.Canny(gray, 100, 200)
+            edge_density = np.sum(edges > 0) / (edges.shape[0] * edges.shape[1])
+
+            return {
+                'edge_density': edge_density,
+                'is_complex': edge_density > ImageQualityAssessor.MIN_EDGE_DENSITY,
+                'edge_score': min(edge_density / 0.15, 1.0)
+            }
+        except Exception as e:
+            logger.error(f"Error detecting edges: {e}")
+            return {'edge_density': 0.0, 'is_complex': False, 'edge_score': 0.0}
+
+    @staticmethod
+    def assess_brightness_contrast(image_path: Path) -> Dict:
+        """Detect washed out or too dark images"""
+        try:
+            img = cv2.imread(str(image_path))
+            if img is None:
+                return {
+                    'mean_brightness': 0,
+                    'contrast': 0,
+                    'is_well_exposed': False,
+                    'has_contrast': False
+                }
+
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            mean_brightness = np.mean(gray)
+            std_brightness = np.std(gray)
 
             return {
                 'mean_brightness': mean_brightness,
                 'contrast': std_brightness,
-                'is_well_exposed': 40 < mean_brightness < 220,
+                'is_well_exposed': ImageQualityAssessor.MIN_BRIGHTNESS < mean_brightness < ImageQualityAssessor.MAX_BRIGHTNESS,
                 'has_contrast': std_brightness > ImageQualityAssessor.MIN_CONTRAST
             }
         except Exception as e:
@@ -126,45 +138,20 @@ class ImageQualityAssessor:
                 'has_contrast': False
             }
 
-    @staticmethod
-    def check_dimensions(image_path: Path) -> Dict:
-        """Check if image meets minimum size requirements"""
-        try:
-            img = Image.open(image_path)
-            width, height = img.size
-
-            return {
-                'width': width,
-                'height': height,
-                'meets_min_size': width >= ImageQualityAssessor.MIN_WIDTH and height >= ImageQualityAssessor.MIN_HEIGHT,
-                'is_square': 0.9 <= (width / height) <= 1.1
-            }
-        except Exception as e:
-            logger.error(f"Error checking dimensions: {e}")
-            return {
-                'width': 0,
-                'height': 0,
-                'meets_min_size': False,
-                'is_square': False
-            }
-
     @classmethod
     def comprehensive_assessment(cls, image_path: Path) -> Dict:
-        """
-        Full quality check combining all metrics
-        """
+        """Full quality check combining all metrics"""
         logger.debug(f"Assessing image quality: {image_path.name}")
 
         sharpness = cls.assess_sharpness(image_path)
         color = cls.assess_color_diversity(image_path)
+        edges = cls.detect_edges(image_path)
         exposure = cls.assess_brightness_contrast(image_path)
-        dimensions = cls.check_dimensions(image_path)
 
-        # Calculate composite score (0-100)
         score = (
             sharpness['sharpness_score'] * 30 +
             (1.0 if color['is_diverse'] else 0.0) * 25 +
-            (1.0 if dimensions['meets_min_size'] else 0.0) * 25 +
+            edges['edge_score'] * 25 +
             (1.0 if exposure['is_well_exposed'] and exposure['has_contrast'] else 0.5) * 20
         )
 
@@ -176,20 +163,16 @@ class ImageQualityAssessor:
             quality_tier = 'low'
 
         rejection_reasons = []
-
         if not sharpness['is_sharp']:
-            rejection_reasons.append(f"Blurry (edge: {sharpness['edge_mean']:.1f})")
-
+            rejection_reasons.append(f"Blurry (Laplacian: {sharpness['laplacian_variance']:.1f})")
         if color['is_likely_logo']:
             rejection_reasons.append(f"Likely logo ({color['unique_colors']} colors)")
-
-        if not dimensions['meets_min_size']:
-            rejection_reasons.append(f"Too small ({dimensions['width']}x{dimensions['height']})")
-
+        if not edges['is_complex']:
+            rejection_reasons.append(f"Low complexity (edge: {edges['edge_density']:.2%})")
         if not exposure['is_well_exposed']:
-            rejection_reasons.append(f"Poor exposure (brightness: {exposure['mean_brightness']:.1f})")
+            rejection_reasons.append(f"Poor exposure ({exposure['mean_brightness']:.1f})")
 
-        is_acceptable = score >= 50.0 and not color['is_likely_logo'] and dimensions['meets_min_size']
+        is_acceptable = score >= 50.0 and not color['is_likely_logo']
 
         result = {
             'overall_score': round(score, 2),
@@ -198,7 +181,7 @@ class ImageQualityAssessor:
             'rejection_reasons': rejection_reasons,
             'sharpness': sharpness,
             'color': color,
-            'dimensions': dimensions,
+            'edges': edges,
             'exposure': exposure
         }
 
@@ -211,9 +194,7 @@ class ImageQualityAssessor:
 
     @staticmethod
     def is_likely_logo(image_path: Path, url: str = "") -> float:
-        """
-        Calculate probability (0.0-1.0) that image is a logo
-        """
+        """Calculate probability (0.0-1.0) that image is a logo"""
         indicators_triggered = 0
         total_indicators = 6
 
@@ -221,7 +202,6 @@ class ImageQualityAssessor:
             logo_keywords = ['logo', 'icon', 'brand', 'emblem', 'sprite']
             if any(keyword in url.lower() for keyword in logo_keywords):
                 indicators_triggered += 2
-
             if '.svg' in url.lower():
                 return 1.0
 
@@ -241,7 +221,6 @@ class ImageQualityAssessor:
                 indicators_triggered += 1
 
             return indicators_triggered / total_indicators
-
         except Exception as e:
             logger.error(f"Error in logo detection: {e}")
             return 0.5
