@@ -1,18 +1,20 @@
 """
-Stealth RSS Image Scraper - Anti-detection optimized
+Stealth RSS Image Scraper - Ultra Anti-detection optimized
 Features:
-- User-Agent rotation
-- Request rate limiting
+- User-Agent rotation with 2024 browsers
+- Request rate limiting with domain awareness
 - Retry logic with exponential backoff
-- Image validation before download
-- Advanced logo detection
+- Enhanced image validation (CV-based logo detection)
+- Advanced fingerprint evasion
+- Connection pooling and keepalive
 """
 
 import asyncio
 import httpx
 import random
+import time
 from bs4 import BeautifulSoup
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 import xml.etree.ElementTree as ET
 from urllib.parse import urljoin, urlparse
@@ -21,6 +23,8 @@ from io import BytesIO
 from PIL import Image
 import hashlib
 import sys
+from pathlib import Path
+import tempfile
 
 # Configure basic logging if loguru not available
 try:
@@ -30,23 +34,37 @@ except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
-class StealthRSScraper:
-    """Anti-detection RSS scraper with image validation"""
+# Try to import enhanced image quality assessor
+try:
+    from ..utils.image_quality_assessor import ImageQualityAssessor
+    HAS_QUALITY_ASSESSOR = True
+except ImportError:
+    HAS_QUALITY_ASSESSOR = False
+    logger.warning("ImageQualityAssessor not available, using basic validation")
 
-    # User-Agent pool - Real browser user agents
+class StealthRSScraper:
+    """Ultra Anti-detection RSS scraper with advanced image validation"""
+
+    # 2024 User-Agent pool - Latest browser versions
     USER_AGENTS = [
-        # Chrome on Windows
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-        # Chrome on macOS
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-        # Firefox on Windows
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
+        # Chrome 124 on Windows 10/11
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        # Chrome on macOS Sonoma
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        # Firefox 125 on Windows
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0',
         # Firefox on macOS
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:120.0) Gecko/20100101 Firefox/120.0',
-        # Safari on macOS
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
-        # Edge on Windows
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.4; rv:125.0) Gecko/20100101 Firefox/125.0',
+        # Safari 17.4 on macOS
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
+        # Edge 124 on Windows
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.0',
+        # Chrome on Linux
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
     ]
 
     # RSS feeds por categoría
@@ -246,7 +264,7 @@ class StealthRSScraper:
 
     async def validate_image(self, client: httpx.AsyncClient, image_url: str, source_key: str) -> bool:
         """
-        Validate that image URL returns valid image data
+        Validate that image URL returns valid image data using enhanced CV detection
 
         Returns:
             True if image is valid and downloadable, False otherwise
@@ -255,10 +273,18 @@ class StealthRSScraper:
         if image_url in self.failed_images:
             return False
 
-        # Check if it's a logo first
-        if self.is_logo_image(image_url):
-            self.failed_images.add(image_url)
-            return False
+        # Quick URL filter using enhanced assessor if available
+        if HAS_QUALITY_ASSESSOR:
+            should_process, reason = ImageQualityAssessor.quick_filter(image_url)
+            if not should_process:
+                logger.debug(f"🚫 URL filter rejected: {reason}")
+                self.failed_images.add(image_url)
+                return False
+        else:
+            # Fallback to basic logo check
+            if self.is_logo_image(image_url):
+                self.failed_images.add(image_url)
+                return False
 
         try:
             response = await self._retry_request(client, image_url, f"{source_key}_image", max_retries=2)
@@ -280,7 +306,7 @@ class StealthRSScraper:
                 img = Image.open(BytesIO(response.content))
                 width, height = img.size
 
-                # Reject small images
+                # Basic dimension checks
                 if width < 300 or height < 150:
                     logger.warning(f"⚠️ Image too small: {width}x{height}")
                     self.failed_images.add(image_url)
@@ -291,6 +317,34 @@ class StealthRSScraper:
                     logger.warning(f"⚠️ Square image (likely logo): {width}x{height}")
                     self.failed_images.add(image_url)
                     return False
+
+                # Enhanced CV-based validation if available
+                if HAS_QUALITY_ASSESSOR:
+                    try:
+                        # Save to temp file for CV analysis
+                        with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp:
+                            img.save(tmp, format='JPEG', quality=85)
+                            tmp_path = Path(tmp.name)
+
+                        # Run comprehensive assessment
+                        result = ImageQualityAssessor.comprehensive_assessment(tmp_path, image_url)
+
+                        # Clean up temp file
+                        try:
+                            tmp_path.unlink()
+                        except:
+                            pass
+
+                        if not result['is_acceptable']:
+                            reasons = result.get('rejection_reasons', ['Unknown'])
+                            logger.warning(f"⚠️ CV rejected: {', '.join(reasons[:2])}")
+                            self.failed_images.add(image_url)
+                            return False
+
+                        logger.debug(f"✅ CV accepted: Score {result['overall_score']:.1f} ({result['quality_tier']})")
+                    except Exception as cv_error:
+                        # If CV analysis fails, fall back to basic validation
+                        logger.debug(f"CV analysis failed, using basic: {cv_error}")
 
                 logger.debug(f"✅ Valid image: {width}x{height} - {image_url[:80]}")
                 return True
