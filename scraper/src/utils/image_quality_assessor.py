@@ -26,18 +26,18 @@ class ImageQualityAssessor:
     - Advertisement banners
     """
 
-    # Enhanced thresholds
-    BLUR_THRESHOLD = 100.0
-    BLUR_THRESHOLD_STRICT = 150.0
-    MIN_COLOR_DIVERSITY = 1000
-    MIN_EDGE_DENSITY = 0.05
-    MIN_BRIGHTNESS = 30
-    MAX_BRIGHTNESS = 225
-    MIN_CONTRAST = 25
-    MIN_IMAGE_WIDTH = 300
-    MIN_IMAGE_HEIGHT = 200
-    MIN_ASPECT_RATIO = 0.3
-    MAX_ASPECT_RATIO = 4.0
+    # Enhanced thresholds - Stricter for better quality
+    BLUR_THRESHOLD = 150.0  # Increased from 100
+    BLUR_THRESHOLD_STRICT = 200.0  # Increased from 150
+    MIN_COLOR_DIVERSITY = 1500  # Increased from 1000
+    MIN_EDGE_DENSITY = 0.06  # Increased from 0.05
+    MIN_BRIGHTNESS = 35  # Increased from 30
+    MAX_BRIGHTNESS = 220  # Decreased from 225
+    MIN_CONTRAST = 30  # Increased from 25
+    MIN_IMAGE_WIDTH = 600  # Increased from 300 - Higher quality images
+    MIN_IMAGE_HEIGHT = 400  # Increased from 200 - Higher quality images
+    MIN_ASPECT_RATIO = 0.4  # Increased from 0.3
+    MAX_ASPECT_RATIO = 3.0  # Decreased from 4.0
 
     # Patterns for detecting unwanted images
     LOGO_URL_KEYWORDS = [
@@ -534,12 +534,13 @@ class ImageQualityAssessor:
         if watermark['has_watermark']:
             rejection_reasons.append(f"Watermark detected ({watermark['watermark_confidence']:.0%})")
 
-        # Final acceptance decision
+        # Final acceptance decision - Stricter threshold for better quality
         is_acceptable = (
-            score >= 45.0 and
+            score >= 55.0 and  # Increased from 45 for higher quality
             not color['is_likely_logo'] and
             not watermark['has_watermark'] and
-            not color['is_solid_color']
+            not color['is_solid_color'] and
+            sharpness['is_sharp']  # Must be sharp
         )
 
         result = {
