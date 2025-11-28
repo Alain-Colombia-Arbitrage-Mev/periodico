@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Output standalone for Docker
-  output: 'standalone',
+  // Skip trailing slash for Cloudflare Pages
+  trailingSlash: false,
 
   // Suppress Cloudflare cookie warnings in development
   onDemandEntries: {
@@ -16,9 +16,9 @@ const nextConfig = {
     return `build-${Date.now()}-complete-rebuild`;
   },
   
-  // Image Optimization
+  // Image Optimization - unoptimized for Cloudflare Pages
   images: {
-    unoptimized: false, // Habilitar optimización solo para Supabase
+    unoptimized: true, // Required for Cloudflare Pages
     remotePatterns: [
       {
         protocol: 'https',
