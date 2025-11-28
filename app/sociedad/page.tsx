@@ -7,7 +7,7 @@ import MainHeadline from '@/components/nyt/MainHeadline';
 import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
-import { Users } from 'lucide-react';
+import { Users, Pen, Bot } from 'lucide-react';
 
 interface Noticia {
   id: string;
@@ -20,6 +20,7 @@ interface Noticia {
   published_at: string;
   views: number;
   is_breaking: boolean;
+  source_type: number;  // 0 = scraped, 1 = manual
   categorias: {
     name: string;
     slug: string;
@@ -114,6 +115,20 @@ export default function SociedadPage() {
                   <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-black">
                     <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                       <div className="flex-shrink-0 md:w-[280px] lg:w-[348px]">
+                        {/* Source type badge */}
+                        <div className="mb-2">
+                          {article.source_type === 1 ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">
+                              <Pen className="w-3 h-3" />
+                              Editorial
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
+                              <Bot className="w-3 h-3" />
+                              Auto
+                            </span>
+                          )}
+                        </div>
                         <Link href={`/sociedad/${article.slug}`}>
                           <h2 className="text-lg md:text-[20px] font-bold mb-3 md:mb-4 hover:opacity-80 transition" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                             {article.title}

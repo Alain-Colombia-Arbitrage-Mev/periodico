@@ -14,6 +14,11 @@ interface Article {
   slug: string;
   category_slug: string;
   published_at: string;
+  categorias?: {
+    name: string;
+    slug: string;
+    color: string;
+  };
 }
 
 interface SidebarProps {
@@ -155,39 +160,43 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
         {/* Recommended articles */}
         {recommendedArticles.length > 0 && (
           <div className="space-y-5">
-            {recommendedArticles.map((article) => (
-              <Link
-                key={article.id}
-                href={`/${article.category_slug}/${article.slug}`}
-                className="block group"
-              >
-                <article className="flex gap-3 pb-5 border-b border-gray-200 last:border-0 last:pb-0">
-                  {article.image_url && (
-                    <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded">
-                      <Image
-                        src={article.image_url}
-                        alt={article.title}
-                        fill
-                        className="object-cover group-hover:opacity-90 transition"
-                        sizes="80px"
-                        unoptimized
-                      />
+            {recommendedArticles.map((article: any) => {
+              // Use categorias.slug if available, fallback to category_slug or 'politica'
+              const categorySlug = article.categorias?.slug || article.category_slug || 'politica';
+              return (
+                <Link
+                  key={article.id}
+                  href={`/${categorySlug}/${article.slug}`}
+                  className="block group"
+                >
+                  <article className="flex gap-3 pb-5 border-b border-gray-200 last:border-0 last:pb-0">
+                    {article.image_url && (
+                      <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded">
+                        <Image
+                          src={article.image_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover group-hover:opacity-90 transition"
+                          sizes="80px"
+                          unoptimized
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[14px] font-bold line-clamp-3 group-hover:opacity-80 transition leading-snug mb-2" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                        {article.title}
+                      </h4>
+                      <p className="text-[10px]" style={{ color: 'var(--nyt-text-gray)' }}>
+                        {formatDistanceToNow(new Date(article.published_at), {
+                          addSuffix: true,
+                          locale: es
+                        })}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-[14px] font-bold line-clamp-3 group-hover:opacity-80 transition leading-snug mb-2" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
-                      {article.title}
-                    </h4>
-                    <p className="text-[10px]" style={{ color: 'var(--nyt-text-gray)' }}>
-                      {formatDistanceToNow(new Date(article.published_at), {
-                        addSuffix: true,
-                        locale: es
-                      })}
-                    </p>
-                  </div>
-                </article>
-              </Link>
-            ))}
+                  </article>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

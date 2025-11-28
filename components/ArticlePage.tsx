@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import NYTHeader from '@/components/nyt/Header';
 import Sidebar from '@/components/nyt/Sidebar';
-import { Clock, Eye, ChevronRight } from 'lucide-react';
+import MediaPlayer from '@/components/MediaPlayer';
+import { Clock, Eye, ChevronRight, Headphones, Video } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -15,6 +16,8 @@ interface Article {
   excerpt: string;
   content: string;
   imageUrl: string;
+  audioUrl?: string;
+  videoUrl?: string;
   publishedAt: Date;
   updatedAt?: Date;
   category: string;
@@ -112,6 +115,41 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
                 sizes="976px"
               />
             </div>
+
+            {/* Video Player */}
+            {article.videoUrl && (
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Video className="w-5 h-5 text-red-600" />
+                  <h3 className="text-lg font-semibold" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                    Video de la noticia
+                  </h3>
+                </div>
+                <MediaPlayer
+                  src={article.videoUrl}
+                  type="video"
+                  poster={article.imageUrl}
+                  title={article.title}
+                />
+              </div>
+            )}
+
+            {/* Audio Player */}
+            {article.audioUrl && (
+              <div className="mb-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <Headphones className="w-5 h-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                    Escuchar esta noticia
+                  </h3>
+                </div>
+                <MediaPlayer
+                  src={article.audioUrl}
+                  type="audio"
+                  title={article.title}
+                />
+              </div>
+            )}
 
             {/* Content */}
             <div className="prose prose-lg max-w-none mb-12">

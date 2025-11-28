@@ -106,3 +106,31 @@ export function useNoticiasByCategory(category: string, limit: number = 20) {
   return useNoticias({ category, status: 'published', limit });
 }
 
+/**
+ * Hook para obtener noticias separadas por tipo de fuente
+ * Returns: { manualNews, scrapedNews, isLoading, error }
+ */
+export function useNoticiasSeparated(filters?: {
+  category?: string;
+  limit?: number;
+}) {
+  const { noticias, isLoading, error, mutate } = useNoticias({
+    status: 'published',
+    category: filters?.category,
+    limit: filters?.limit || 20
+  });
+
+  // Separate by source_type: 1 = manual, 0 = scraped
+  const manualNews = noticias.filter((n: any) => n.source_type === 1);
+  const scrapedNews = noticias.filter((n: any) => n.source_type === 0);
+
+  return {
+    manualNews,
+    scrapedNews,
+    allNews: noticias,
+    isLoading,
+    error,
+    mutate
+  };
+}
+

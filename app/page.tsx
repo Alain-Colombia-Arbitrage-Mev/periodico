@@ -9,6 +9,7 @@ import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
 import { useNoticias } from '@/lib/hooks/useNoticias';
 import { SkeletonPage } from '@/components/SkeletonLoaders';
+import { Pen, Bot } from 'lucide-react';
 
 interface Noticia {
   id: string;
@@ -114,12 +115,12 @@ export default function HomePage() {
             {/* Secondary Headlines - Mobile-First Responsive */}
             {recentNews.length > 0 ? (
               <div className="space-y-0">
-                {recentNews.map((article) => (
+                {recentNews.map((article: any) => (
                   <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-gray-300">
                     {/* Mobile-First: Stack vertically */}
                     <div className="flex flex-col gap-4">
                       {/* Image First on Mobile - Better UX */}
-                      <div className="w-full">
+                      <div className="w-full relative">
                         <Link href={`/${article.categorias?.slug || 'politica'}/${article.slug}`}>
                           {article.image_url ? (
                             <div className="relative w-full aspect-video overflow-hidden rounded-sm bg-gray-100">
@@ -131,6 +132,20 @@ export default function HomePage() {
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                                 priority={false}
                               />
+                              {/* Source type badge */}
+                              <div className="absolute top-2 left-2">
+                                {article.source_type === 1 ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">
+                                    <Pen className="w-3 h-3" />
+                                    Editorial
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
+                                    <Bot className="w-3 h-3" />
+                                    Auto
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           ) : (
                             <div className="relative w-full aspect-video bg-gray-100 flex items-center justify-center rounded-sm">

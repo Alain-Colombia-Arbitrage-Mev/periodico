@@ -39,7 +39,7 @@ export function useNoticias<T = any>(
   const isMounted = useRef(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const cacheKey = \`\${endpoint}:\${JSON.stringify(options)}\`;
+  const cacheKey = `${endpoint}:${JSON.stringify(options)}`;
 
   const fetchData = useCallback(async (force = false) => {
     try {
@@ -60,7 +60,7 @@ export function useNoticias<T = any>(
         const params = new URLSearchParams();
         if (options.category) params.set('category', options.category);
         if (options.limit) params.set('limit', options.limit.toString());
-        const url = params.toString() ? \`\${endpoint}?\${params}\` : endpoint;
+        const url = params.toString() ? `${endpoint}?${params}` : endpoint;
 
         request = fetch(url, {
           method: 'GET',
@@ -68,7 +68,7 @@ export function useNoticias<T = any>(
           cache: 'force-cache',
           next: { revalidate: 60 },
         }).then(async (res) => {
-          if (!res.ok) throw new Error(\`HTTP \${res.status}\`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           return res.json();
         });
 
@@ -120,7 +120,7 @@ export function useNoticias<T = any>(
 }
 
 export function useNoticia(slug: string) {
-  return useNoticias(\`/api/noticias/\${slug}\`);
+  return useNoticias(`/api/noticias/${slug}`);
 }
 
 export function useNoticiasByCategory(category: string, limit = 20) {

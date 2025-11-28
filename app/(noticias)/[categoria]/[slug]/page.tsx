@@ -19,6 +19,8 @@ interface Noticia {
   excerpt: string;
   content: string;
   image_url: string;
+  audio_url?: string;
+  video_url?: string;
   slug: string;
   published_at: string;
   updated_at?: string;
@@ -125,6 +127,8 @@ export default function ArticleDetailPage({ params }: PageProps) {
     excerpt: noticia.excerpt,
     content: noticia.content || `<p>${noticia.excerpt}</p><p>Esta es una noticia en desarrollo. Estamos trabajando para proporcionarle toda la información relevante sobre este tema.</p>`,
     imageUrl: noticia.image_url,
+    audioUrl: noticia.audio_url,
+    videoUrl: noticia.video_url,
     category: noticia.categorias?.name || 'Noticias',
     categorySlug: noticia.categorias?.slug || 'noticias',
     publishedAt: new Date(noticia.published_at),
