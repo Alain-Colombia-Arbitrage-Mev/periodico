@@ -16,8 +16,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
-    "better-sqlite3": "^11.10.0",
-    "claude-flow": "^2.7.35",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.460.0",
