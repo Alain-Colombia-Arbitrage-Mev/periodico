@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseHelpers } from '@/lib/supabase';
 
+export const runtime = 'edge';
+
 // GET /api/noticias/[id] - Obtener una noticia por ID
 export async function GET(
   request: NextRequest,

@@ -7,6 +7,8 @@
  * GET /api/rewrite/stats - Get rewriting statistics
  */
 
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createContentRewriterIntegration } from '@/lib/services/content-rewriter.integration';
 

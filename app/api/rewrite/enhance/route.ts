@@ -4,6 +4,8 @@
  * POST /api/rewrite/enhance - Enhance article with improved title, excerpt, and suggestions
  */
 
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createContentRewriterIntegration } from '@/lib/services/content-rewriter.integration';
 
