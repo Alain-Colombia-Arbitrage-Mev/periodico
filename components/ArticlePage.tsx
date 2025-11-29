@@ -44,89 +44,112 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
       <NYTHeader />
 
       {/* Breadcrumb */}
-      <div className="max-w-[1440px] mx-auto px-10 py-4">
-        <nav className="flex items-center gap-2 text-sm" style={{ color: 'var(--nyt-text-gray)' }}>
-          <Link href="/" className="hover:underline">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 py-3 md:py-4">
+        <nav className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs md:text-sm overflow-x-auto whitespace-nowrap" style={{ color: 'var(--nyt-text-gray)' }}>
+          <Link href="/" className="hover:underline flex-shrink-0">
             Inicio
           </Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link href={`/${article.categorySlug}`} className="hover:underline">
+          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+          <Link href={`/${article.categorySlug}`} className="hover:underline flex-shrink-0">
             {article.category}
           </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="truncate max-w-md">{article.title}</span>
+          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span className="truncate max-w-[120px] sm:max-w-[200px] md:max-w-md">{article.title}</span>
         </nav>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-[1440px] mx-auto px-10 pb-12">
-        <div className="flex gap-8">
+      <main className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 pb-8 md:pb-12">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Article Content */}
-          <article className="flex-1 max-w-[976px]">
+          <article className="flex-1 w-full min-w-0 lg:max-w-[976px]">
             {/* Header */}
-            <header className="mb-8 pb-8 border-b border-black">
+            <header className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-black">
               {/* Title */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 md:mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                 {article.title}
               </h1>
 
               {/* Subtitle */}
               {article.subtitle && (
-                <p className="text-xl md:text-2xl font-medium leading-relaxed mb-6" style={{ color: 'var(--nyt-text-secondary)', fontFamily: 'var(--font-georgia)' }}>
+                <p className="text-base sm:text-lg md:text-2xl font-medium leading-relaxed mb-4 md:mb-6" style={{ color: 'var(--nyt-text-secondary)', fontFamily: 'var(--font-georgia)' }}>
                   {article.subtitle}
                 </p>
               )}
 
               {/* Excerpt */}
-              <p className="text-lg leading-relaxed mb-6 pb-6 border-b" style={{ color: 'var(--nyt-text-secondary)', fontFamily: 'var(--font-georgia)', borderColor: 'var(--nyt-divider)' }}>
+              <p className="text-sm sm:text-base md:text-lg leading-relaxed mb-4 md:mb-6 pb-4 md:pb-6 border-b" style={{ color: 'var(--nyt-text-secondary)', fontFamily: 'var(--font-georgia)', borderColor: 'var(--nyt-divider)' }}>
                 {article.excerpt}
               </p>
 
               {/* Meta Information */}
-              <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: 'var(--nyt-text-gray)' }}>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm" style={{ color: 'var(--nyt-text-gray)' }}>
                 <time className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                   {formatDistanceToNow(article.publishedAt, {
                     addSuffix: true,
                     locale: es
                   })}
                 </time>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <span className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                   {article.views.toLocaleString()} lecturas
                 </span>
-                <span>•</span>
-                <span>{article.readingTime} min de lectura</span>
+                <span className="hidden sm:inline">•</span>
+                <span>{article.readingTime} min</span>
               </div>
             </header>
 
             {/* Featured Image */}
-            <div className="relative w-full h-[500px] md:h-[600px] mb-8">
+            <div className="relative w-full h-[200px] sm:h-[300px] md:h-[500px] lg:h-[600px] mb-6 md:mb-8">
               <Image
                 src={article.imageUrl}
                 alt={article.title}
                 fill
                 className="object-cover"
                 priority
-                sizes="976px"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 976px"
               />
             </div>
 
             {/* Content */}
-            <div className="prose prose-lg max-w-none mb-12">
+            <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none mb-8 md:mb-12">
               <style jsx>{`
                 .article-content :global(p) {
-                  margin-bottom: 1.5rem;
-                  text-align: justify;
+                  margin-bottom: 1rem;
+                  text-align: left;
                   font-family: var(--font-georgia);
                   color: var(--nyt-text-primary);
-                  font-size: 1.125rem;
-                  line-height: 1.8;
+                  font-size: 0.875rem;
+                  line-height: 1.7;
+                  word-wrap: break-word;
+                  overflow-wrap: break-word;
+                }
+                @media (min-width: 640px) {
+                  .article-content :global(p) {
+                    margin-bottom: 1.25rem;
+                    font-size: 1rem;
+                    line-height: 1.75;
+                    text-align: justify;
+                  }
+                }
+                @media (min-width: 768px) {
+                  .article-content :global(p) {
+                    margin-bottom: 1.5rem;
+                    font-size: 1.125rem;
+                    line-height: 1.8;
+                  }
                 }
                 .article-content :global(p:first-of-type) {
-                  font-size: 1.25rem;
-                  line-height: 1.75;
+                  font-size: 1rem;
+                  line-height: 1.7;
+                }
+                @media (min-width: 768px) {
+                  .article-content :global(p:first-of-type) {
+                    font-size: 1.25rem;
+                    line-height: 1.75;
+                  }
                 }
                 .article-content :global(p:last-of-type) {
                   margin-bottom: 0;
@@ -140,17 +163,17 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
             {/* Tags */}
             {article.tags.length > 0 && (
-              <div className="mt-12 pt-8 border-t" style={{ borderColor: 'var(--nyt-divider)' }}>
-                <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+              <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t" style={{ borderColor: 'var(--nyt-divider)' }}>
+                <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                   Etiquetas:
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {article.tags.map((tag, index) => (
                     <Link
                       key={index}
                       href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`}
-                      className="px-4 py-2 rounded-full text-sm font-medium transition-colors"
-                      style={{ 
+                      className="px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors"
+                      style={{
                         backgroundColor: 'var(--nyt-bg-gray)',
                         color: 'var(--nyt-text-dark-gray)'
                       }}
@@ -172,11 +195,11 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
             {/* Related Articles */}
             {relatedArticles.length > 0 && (
-              <div className="mt-12 pt-8 border-t-2 border-black">
-                <h3 className="text-2xl font-bold mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+              <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t-2 border-black">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 md:mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                   Artículos Relacionados
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                   {relatedArticles.map((related) => (
                     <Link
                       key={related.id}
@@ -184,17 +207,17 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
                       className="group"
                     >
                       <article className="border border-black overflow-hidden hover:opacity-80 transition">
-                        <div className="relative h-48">
+                        <div className="relative h-32 sm:h-40 md:h-48">
                           <Image
                             src={related.imageUrl}
                             alt={related.title}
                             fill
                             className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 33vw"
+                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                           />
                         </div>
-                        <div className="p-4">
-                          <h4 className="text-lg font-bold line-clamp-3 group-hover:opacity-80 transition" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                        <div className="p-3 sm:p-4">
+                          <h4 className="text-sm sm:text-base md:text-lg font-bold line-clamp-3 group-hover:opacity-80 transition" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                             {related.title}
                           </h4>
                         </div>
@@ -206,20 +229,20 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
             )}
           </article>
 
-          {/* Sidebar */}
-          <div className="w-[335px]">
+          {/* Sidebar - Hidden on mobile, shown on large screens */}
+          <div className="hidden lg:block w-full lg:w-[335px] flex-shrink-0">
             <Sidebar />
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t-2 border-black mt-16 py-12">
-        <div className="max-w-[1440px] mx-auto px-10">
-          <div className="grid grid-cols-4 gap-8 mb-8">
+      <footer className="border-t-2 border-black mt-8 md:mt-16 py-8 md:py-12">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 mb-6 md:mb-8">
             <div>
-              <h4 className="font-bold text-sm uppercase mb-4">Noticias</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="font-bold text-xs sm:text-sm uppercase mb-2 sm:mb-4">Noticias</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                 <li><Link href="/politica" className="hover:underline">Política</Link></li>
                 <li><Link href="/economia" className="hover:underline">Economía</Link></li>
                 <li><Link href="/judicial" className="hover:underline">Judicial</Link></li>
@@ -227,31 +250,31 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-sm uppercase mb-4">Opinión</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="font-bold text-xs sm:text-sm uppercase mb-2 sm:mb-4">Opinión</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                 <li><Link href="/opinion" className="hover:underline">Editoriales</Link></li>
                 <li><Link href="/opinion" className="hover:underline">Columnistas</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-sm uppercase mb-4">Más</h4>
-              <ul className="space-y-2 text-sm">
+              <h4 className="font-bold text-xs sm:text-sm uppercase mb-2 sm:mb-4">Más</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                 <li><Link href="/sobre-nosotros" className="hover:underline">Sobre Nosotros</Link></li>
                 <li><Link href="/contacto" className="hover:underline">Contacto</Link></li>
                 <li><Link href="/terminos" className="hover:underline">Términos</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-sm uppercase mb-4">Suscribirse</h4>
-              <p className="text-sm mb-4" style={{ color: 'var(--nyt-text-gray)' }}>
+              <h4 className="font-bold text-xs sm:text-sm uppercase mb-2 sm:mb-4">Suscribirse</h4>
+              <p className="text-xs sm:text-sm mb-2 sm:mb-4" style={{ color: 'var(--nyt-text-gray)' }}>
                 Accede a todas las noticias
               </p>
-              <button className="text-white text-sm px-4 py-2 rounded transition" style={{ backgroundColor: 'var(--nyt-button-bg)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--nyt-button-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--nyt-button-bg)'}>
+              <button className="text-white text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded transition" style={{ backgroundColor: 'var(--nyt-button-bg)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--nyt-button-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--nyt-button-bg)'}>
                 Suscribirse
               </button>
             </div>
           </div>
-          <div className="border-t pt-8 text-center text-sm" style={{ borderColor: 'var(--nyt-divider)', color: 'var(--nyt-text-gray)' }}>
+          <div className="border-t pt-6 md:pt-8 text-center text-xs sm:text-sm" style={{ borderColor: 'var(--nyt-divider)', color: 'var(--nyt-text-gray)' }}>
             <p>&copy; 2025 Política Argentina. Todos los derechos reservados.</p>
           </div>
         </div>
