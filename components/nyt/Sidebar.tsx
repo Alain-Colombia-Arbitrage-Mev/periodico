@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import NewsImage from '@/components/NewsImage';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useEffect, useState } from 'react';
@@ -82,13 +82,13 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
           <Link href={`/${featuredArticle.category_slug}/${featuredArticle.slug}`}>
             {featuredArticle.image_url ? (
               <div className="relative w-full h-[225px] mb-4 overflow-hidden rounded">
-                <Image
+                <NewsImage
                   src={featuredArticle.image_url}
                   alt={featuredArticle.title}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-300"
                   sizes="335px"
-                  unoptimized
+                  quality={90}
                 />
               </div>
             ) : (
@@ -128,13 +128,13 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
               >
                 {article.image_url ? (
                   <div className="relative w-full h-[100px] mb-2 overflow-hidden rounded">
-                    <Image
+                    <NewsImage
                       src={article.image_url}
                       alt={article.title}
                       fill
                       className="object-cover group-hover:opacity-90 transition"
                       sizes="152px"
-                      unoptimized
+                      quality={90}
                     />
                   </div>
                 ) : (
@@ -193,13 +193,13 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
                   <article className="flex gap-3 pb-5 border-b border-gray-200 last:border-0 last:pb-0">
                     {article.image_url && (
                       <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded">
-                        <Image
+                        <NewsImage
                           src={article.image_url}
                           alt={article.title}
                           fill
                           className="object-cover group-hover:opacity-90 transition"
                           sizes="80px"
-                          unoptimized
+                          quality={90}
                         />
                       </div>
                     )}
