@@ -54,6 +54,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
   return (
     <div className="min-h-screen bg-white">
+      {/* VERSION: mobile-first-v2 - 2024-11-30 */}
       <NYTHeader />
 
       {/* Mobile-first Article Layout */}
