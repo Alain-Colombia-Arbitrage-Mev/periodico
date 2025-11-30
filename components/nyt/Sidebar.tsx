@@ -48,8 +48,10 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
     }
     fetchRecommended();
   }, []);
+
+  // Hidden on mobile/tablet, only visible on desktop (1024px+)
   return (
-    <aside className="w-full lg:w-[335px] space-y-6 lg:sticky lg:top-8">
+    <aside className="hidden lg:block w-full lg:w-[335px] space-y-6 lg:sticky lg:top-8" style={{ display: 'var(--sidebar-display, none)' }}>
       {/* Featured Article */}
       {featuredArticle && (
         <article className="border-b pb-6" style={{ borderColor: 'var(--nyt-border)' }}>
