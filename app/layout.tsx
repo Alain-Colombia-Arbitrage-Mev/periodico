@@ -88,23 +88,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="no-sidebar-mobile">
-        <style dangerouslySetInnerHTML={{ __html: `
-          @media (max-width: 1023px) {
-            aside, [class*="sidebar"], [class*="Sidebar"],
-            .lg\\:block, .lg\\:col-span-4, .lg\\:w-\\[335px\\],
-            .hidden.lg\\:block {
-              display: none !important;
-              visibility: hidden !important;
-              width: 0 !important;
-              height: 0 !important;
-            }
-            html, body {
-              overflow-x: hidden !important;
-              max-width: 100vw !important;
-            }
-          }
-        `}} />
+      <body>
         <SWRProvider>
           {children}
         </SWRProvider>

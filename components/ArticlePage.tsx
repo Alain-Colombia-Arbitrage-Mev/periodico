@@ -99,8 +99,8 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
           </div>
         </div>
 
-        {/* Article Content Container */}
-        <div className="max-w-[720px] mx-auto px-4 md:px-6 lg:px-8">
+        {/* Article Content Container - Full width on mobile */}
+        <div className="w-full px-4 md:max-w-[720px] md:mx-auto md:px-6 lg:px-8">
 
           {/* Desktop Breadcrumb */}
           <nav className="hidden md:flex items-center gap-2 text-sm text-gray-500 py-4 border-b border-gray-200">
@@ -334,7 +334,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
         {/* Footer */}
         <footer className="bg-gray-50 border-t border-gray-200 mt-8">
-          <div className="max-w-[720px] mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+          <div className="w-full px-4 md:max-w-[720px] md:mx-auto md:px-6 lg:px-8 py-8 md:py-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               <div>
                 <h4 className="font-bold text-sm uppercase tracking-wide mb-3">Noticias</h4>
