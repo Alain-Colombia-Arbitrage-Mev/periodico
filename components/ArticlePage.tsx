@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import NYTHeader from '@/components/nyt/Header';
-import Sidebar from '@/components/nyt/Sidebar';
 import { Clock, Eye, ChevronRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -58,11 +57,10 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
         </nav>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 pb-8 md:pb-12 overflow-x-hidden">
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-          {/* Article Content */}
-          <article className="flex-1 w-full min-w-0 max-w-full lg:max-w-[976px]">
+      {/* Main Content - Full width, no sidebar on article pages */}
+      <main className="max-w-[900px] mx-auto px-3 sm:px-4 md:px-10 pb-8 md:pb-12 overflow-x-hidden">
+        {/* Article Content */}
+        <article className="w-full">
             {/* Header */}
             <header className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-black">
               {/* Title */}
@@ -227,13 +225,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
                 </div>
               </div>
             )}
-          </article>
-
-          {/* Sidebar - Hidden on mobile and tablet, shown only on large screens (1024px+) */}
-          <aside className="hidden lg:block lg:w-[335px] flex-shrink-0">
-            <Sidebar />
-          </aside>
-        </div>
+        </article>
       </main>
 
       {/* Footer */}
