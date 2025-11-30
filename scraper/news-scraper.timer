@@ -1,0 +1,13 @@
+[Unit]
+Description=Run News Scraper once daily
+
+[Timer]
+# Run once daily at 6:00 AM
+OnCalendar=*-*-* 06:00:00
+# Run immediately after boot if a scheduled run was missed
+Persistent=true
+# Random delay up to 10 minutes to avoid exact timing
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

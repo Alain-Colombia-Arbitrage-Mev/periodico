@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { supabaseHelpers } from '@/lib/supabase';
 import NYTHeader from '@/components/nyt/Header';
 import MainHeadline from '@/components/nyt/MainHeadline';
-import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
 import { Globe2, Pen, Bot } from 'lucide-react';
@@ -68,13 +67,12 @@ export default function InternacionalPage() {
 
   const featuredNews = noticias[0];
   const recentNews = noticias.slice(1, 11);
-  const sidebarNews = noticias.slice(1, 5);
 
   return (
     <div className="min-h-screen bg-white">
       <NYTHeader />
 
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+      <main className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
         {/* Category Header */}
         <div className="mb-6 lg:mb-8 pb-4 border-b-2 border-black">
           <div className="flex items-center gap-3 mb-2">
@@ -88,9 +86,8 @@ export default function InternacionalPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
+        {/* Main Content - Full width, no sidebar */}
+        <div className="w-full">
             {/* Featured Article */}
             {featuredNews && (
               <div className="mb-8 lg:mb-12">
@@ -174,30 +171,6 @@ export default function InternacionalPage() {
                 </Link>
               </div>
             )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="hidden lg:block lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
-            <Sidebar
-              featuredArticle={sidebarNews[0] ? {
-                id: sidebarNews[0].id,
-                title: sidebarNews[0].title,
-                excerpt: sidebarNews[0].excerpt,
-                image_url: sidebarNews[0].image_url,
-                slug: sidebarNews[0].slug,
-                category_slug: 'internacional',
-                published_at: sidebarNews[0].published_at
-              } : undefined}
-              sideArticles={sidebarNews.slice(1).map(a => ({
-                id: a.id,
-                title: a.title,
-                image_url: a.image_url,
-                slug: a.slug,
-                category_slug: 'internacional',
-                published_at: a.published_at
-              }))}
-            />
-          </div>
         </div>
       </main>
 

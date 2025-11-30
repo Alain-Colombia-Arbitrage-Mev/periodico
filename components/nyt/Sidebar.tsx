@@ -35,9 +35,24 @@ interface SidebarProps {
 
 export default function Sidebar({ featuredArticle, sideArticles, opinions }: SidebarProps) {
   const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
+  const [isMobile, setIsMobile] = useState(true); // Default to mobile (hidden)
 
   useEffect(() => {
-    // Fetch recommended articles for "En Caso de que te lo Perdiste"
+    // Check if we're on desktop
+    const checkIfDesktop = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkIfDesktop();
+    window.addEventListener('resize', checkIfDesktop);
+
+    return () => window.removeEventListener('resize', checkIfDesktop);
+  }, []);
+
+  useEffect(() => {
+    // Only fetch if on desktop
+    if (isMobile) return;
+
     async function fetchRecommended() {
       try {
         const res = await fetch('/api/noticias?limit=4');
@@ -52,9 +67,15 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
       }
     }
     fetchRecommended();
-  }, []);
+  }, [isMobile]);
+
+  // Don't render anything on mobile/tablet
+  if (isMobile) {
+    return null;
+  }
+
   return (
-    <aside className="w-full max-w-full lg:max-w-[335px] space-y-6 lg:sticky lg:top-8">
+    <aside className="w-[335px] space-y-6 sticky top-8">
       {/* Featured Article */}
       {featuredArticle && (
         <article className="border-b pb-6" style={{ borderColor: 'var(--nyt-border)' }}>

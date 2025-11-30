@@ -4,10 +4,8 @@ import { useMainArticle, useBreakingNews, useRecentNews } from '@/lib/hooks/useN
 import NYTHeader from '@/components/nyt/Header';
 import MainHeadline from '@/components/nyt/MainHeadline';
 import LiveSection from '@/components/nyt/LiveSection';
-import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
-import { useNoticias } from '@/lib/hooks/useNoticias';
 import { SkeletonPage } from '@/components/SkeletonLoaders';
 import { Pen, Bot } from 'lucide-react';
 
@@ -40,24 +38,12 @@ export default function HomePage() {
   const { noticias: mainData, isLoading: mainLoading } = useMainArticle();
   const { breakingNews, isLoading: breakingLoading } = useBreakingNews();
   const { recentNews, isLoading: recentLoading } = useRecentNews(20);
-  const { noticias: featuredData, isLoading: featuredLoading } = useNoticias({
-    status: 'published',
-    limit: 1,
-    offset: 1
-  });
-  const { noticias: sideData, isLoading: sideLoading } = useNoticias({
-    status: 'published',
-    limit: 4,
-    offset: 2
-  });
 
   // Extraer datos
   const mainArticle = mainData && mainData.length > 0 ? mainData[0] as Noticia : null;
-  const featuredArticle = featuredData && featuredData.length > 0 ? featuredData[0] as Noticia : null;
-  const sideArticles = (sideData || []) as Noticia[];
 
   // Loading state combinado
-  const loading = mainLoading || breakingLoading || recentLoading || featuredLoading || sideLoading;
+  const loading = mainLoading || breakingLoading || recentLoading;
 
   if (loading) {
     return <SkeletonPage />;
@@ -67,11 +53,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <NYTHeader />
 
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
-        {/* Grid Layout: 12 columnas - Main (8) + Sidebar (4) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Main Content - 8 columnas, ancho máximo 976px */}
-          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
+      <main className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+        {/* Main Content - Full width, no sidebar */}
+        <div className="w-full">
             {/* Últimas Noticias - INICIO DEL HOME */}
             <div className="mb-6 lg:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
@@ -185,31 +169,7 @@ export default function HomePage() {
                 </p>
               </div>
             )}
-          </div>
-
-          {/* Sidebar - 4 columnas, ancho fijo 335px, sticky */}
-          <div className="lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
-            <Sidebar
-              featuredArticle={featuredArticle ? {
-                id: featuredArticle.id,
-                title: featuredArticle.title,
-                excerpt: featuredArticle.excerpt,
-                image_url: featuredArticle.image_url,
-                slug: featuredArticle.slug,
-                category_slug: featuredArticle.categorias?.slug || 'politica',
-                published_at: featuredArticle.published_at
-              } : undefined}
-              sideArticles={sideArticles.map(a => ({
-                id: a.id,
-                title: a.title,
-                image_url: a.image_url,
-                slug: a.slug,
-                category_slug: a.categorias?.slug || 'politica',
-                published_at: a.published_at
-              }))}
-            />
         </div>
-      </div>
       </main>
 
       {/* Footer - NYT Style */}

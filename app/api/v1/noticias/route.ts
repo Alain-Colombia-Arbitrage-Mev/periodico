@@ -9,6 +9,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { noticiaService } from '@/lib/services/noticia.service';
 import { handleError } from '@/lib/utils';
 
+export const runtime = 'edge';
+
 // ============================================
 // GET /api/v1/noticias
 // ============================================

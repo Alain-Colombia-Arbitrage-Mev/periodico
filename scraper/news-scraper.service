@@ -1,0 +1,16 @@
+[Unit]
+Description=News Scraper Service
+After=network.target
+
+[Service]
+Type=oneshot
+User=alain
+WorkingDirectory=/home/alain/scrapper/periodico/scraper
+Environment=PATH=/home/alain/scrapper/periodico/scraper/venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/alain/scrapper/periodico/scraper/venv/bin/python -u run_pipeline.py
+
+# Timeout after 30 minutes (scraping can take time)
+TimeoutStartSec=1800
+
+[Install]
+WantedBy=multi-user.target
