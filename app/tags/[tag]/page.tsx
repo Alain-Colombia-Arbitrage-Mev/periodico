@@ -8,8 +8,6 @@ import { supabaseHelpers } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export const runtime = 'edge';
-
 type Props = {
   params: Promise<{ tag: string }>;
 };
