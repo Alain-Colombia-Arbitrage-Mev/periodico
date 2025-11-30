@@ -87,9 +87,9 @@ export default function EconomiaPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
+          <div className="flex-1 w-full min-w-0 max-w-full lg:max-w-[976px]">
             {/* Featured Article */}
             {featuredNews && (
               <div className="mb-8 lg:mb-12">
@@ -161,8 +161,8 @@ export default function EconomiaPage() {
             )}
           </div>
 
-          {/* Sidebar */}
-          <div className="hidden lg:block lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
+          {/* Sidebar - Hidden on mobile and tablet */}
+          <aside className="hidden lg:block lg:w-[335px] flex-shrink-0">
             <Sidebar
               featuredArticle={sidebarNews[0] ? {
                 id: sidebarNews[0].id,
@@ -182,7 +182,7 @@ export default function EconomiaPage() {
                 published_at: a.published_at
               }))}
             />
-          </div>
+          </aside>
         </div>
       </main>
 

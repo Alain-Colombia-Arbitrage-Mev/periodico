@@ -67,10 +67,10 @@ export default function HomePage() {
       <NYTHeader />
 
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
-        {/* Grid Layout: 12 columnas - Main (8) + Sidebar (4) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Main Content - 8 columnas, ancho máximo 976px */}
-          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
+        {/* Flex Layout - Main + Sidebar */}
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+          {/* Main Content */}
+          <div className="flex-1 w-full min-w-0 max-w-full lg:max-w-[976px]">
             {/* Últimas Noticias - INICIO DEL HOME */}
             <div className="mb-6 lg:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
@@ -172,8 +172,8 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Sidebar - 4 columnas, ancho fijo 335px, sticky */}
-          <div className="lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
+          {/* Sidebar - Hidden on mobile and tablet, visible only on desktop (1024px+) */}
+          <aside className="hidden lg:block lg:w-[335px] flex-shrink-0">
             <Sidebar
               featuredArticle={featuredArticle ? {
                 id: featuredArticle.id,
@@ -193,8 +193,8 @@ export default function HomePage() {
                 published_at: a.published_at
               }))}
             />
+          </aside>
         </div>
-      </div>
       </main>
 
       {/* Footer - NYT Style */}

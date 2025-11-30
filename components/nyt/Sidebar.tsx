@@ -49,7 +49,7 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
     fetchRecommended();
   }, []);
   return (
-    <aside className="w-full max-w-full lg:max-w-[335px] space-y-6 lg:sticky lg:top-8">
+    <aside className="w-full lg:w-[335px] space-y-6 lg:sticky lg:top-8">
       {/* Featured Article */}
       {featuredArticle && (
         <article className="border-b pb-6" style={{ borderColor: 'var(--nyt-border)' }}>

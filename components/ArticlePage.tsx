@@ -59,10 +59,10 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
       </div>
 
       {/* Main Content */}
-      <main className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 pb-8 md:pb-12">
+      <main className="max-w-[1440px] mx-auto px-3 sm:px-4 md:px-10 pb-8 md:pb-12 overflow-x-hidden">
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Article Content */}
-          <article className="flex-1 w-full min-w-0 lg:max-w-[976px]">
+          <article className="flex-1 w-full min-w-0 max-w-full lg:max-w-[976px]">
             {/* Header */}
             <header className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-black">
               {/* Title */}
@@ -229,10 +229,10 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
             )}
           </article>
 
-          {/* Sidebar - Hidden on mobile, shown on large screens */}
-          <div className="hidden lg:block w-full lg:w-[335px] flex-shrink-0">
+          {/* Sidebar - Hidden on mobile and tablet, shown only on large screens (1024px+) */}
+          <aside className="hidden lg:block lg:w-[335px] flex-shrink-0">
             <Sidebar />
-          </div>
+          </aside>
         </div>
       </main>
 
