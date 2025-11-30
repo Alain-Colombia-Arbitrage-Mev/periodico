@@ -448,7 +448,11 @@
 
 /* Ensure sidebar is hidden on all non-desktop screens */
 @media (max-width: 1023px) {
-  aside.lg\:block {
+  aside,
+  aside.lg\:block,
+  .lg\:block[class*="sidebar"],
+  [class*="Sidebar"],
+  .lg\:w-\[335px\] {
     display: none !important;
   }
 }
