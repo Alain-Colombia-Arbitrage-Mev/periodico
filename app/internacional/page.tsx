@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabaseHelpers } from '@/lib/supabase';
 import NYTHeader from '@/components/nyt/Header';
 import MainHeadline from '@/components/nyt/MainHeadline';
+import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
 import { Globe2, Pen, Bot } from 'lucide-react';
@@ -72,7 +73,7 @@ export default function InternacionalPage() {
     <div className="min-h-screen bg-white">
       <NYTHeader />
 
-      <main className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+      <main className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
         {/* Category Header */}
         <div className="mb-6 lg:mb-8 pb-4 border-b-2 border-black">
           <div className="flex items-center gap-3 mb-2">
@@ -86,8 +87,10 @@ export default function InternacionalPage() {
           </p>
         </div>
 
-        {/* Main Content - Full width, no sidebar */}
-        <div className="w-full">
+        {/* Main Content with Sidebar on Desktop */}
+        <div className="flex gap-8">
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
             {/* Featured Article */}
             {featuredNews && (
               <div className="mb-8 lg:mb-12">
@@ -171,10 +174,14 @@ export default function InternacionalPage() {
                 </Link>
               </div>
             )}
+          </div>
+
+          {/* Sidebar - Hidden on Mobile */}
+          <Sidebar />
         </div>
       </main>
 
-      {/* Bloomberg Footer */}
+      {/* Footer */}
       
     </div>
   );

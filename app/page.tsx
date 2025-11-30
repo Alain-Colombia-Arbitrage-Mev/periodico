@@ -4,6 +4,7 @@ import { useMainArticle, useBreakingNews, useRecentNews } from '@/lib/hooks/useN
 import NYTHeader from '@/components/nyt/Header';
 import MainHeadline from '@/components/nyt/MainHeadline';
 import LiveSection from '@/components/nyt/LiveSection';
+import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
 import { SkeletonPage } from '@/components/SkeletonLoaders';
@@ -53,9 +54,11 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <NYTHeader />
 
-      <main className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
-        {/* Main Content - Full width, no sidebar */}
-        <div className="w-full">
+      <main className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+        {/* Main Content with Sidebar on Desktop */}
+        <div className="flex gap-8">
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
             {/* Últimas Noticias - INICIO DEL HOME */}
             <div className="mb-6 lg:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
@@ -169,6 +172,10 @@ export default function HomePage() {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Sidebar - Hidden on Mobile */}
+          <Sidebar />
         </div>
       </main>
 
