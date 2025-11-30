@@ -10,6 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createContentRewriterIntegration } from '@/lib/services/content-rewriter.integration';
 
+export const runtime = 'edge';
+
 // Initialize the rewriter service
 function getRewriterService() {
   const apiKey = process.env.OPENROUTER_API_KEY;

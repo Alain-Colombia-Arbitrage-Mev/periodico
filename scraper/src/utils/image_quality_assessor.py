@@ -26,18 +26,18 @@ class ImageQualityAssessor:
     - Advertisement banners
     """
 
-    # Enhanced thresholds - Stricter for better quality
-    BLUR_THRESHOLD = 150.0  # Increased from 100
-    BLUR_THRESHOLD_STRICT = 200.0  # Increased from 150
-    MIN_COLOR_DIVERSITY = 1500  # Increased from 1000
-    MIN_EDGE_DENSITY = 0.06  # Increased from 0.05
-    MIN_BRIGHTNESS = 35  # Increased from 30
-    MAX_BRIGHTNESS = 220  # Decreased from 225
-    MIN_CONTRAST = 30  # Increased from 25
-    MIN_IMAGE_WIDTH = 600  # Increased from 300 - Higher quality images
-    MIN_IMAGE_HEIGHT = 400  # Increased from 200 - Higher quality images
-    MIN_ASPECT_RATIO = 0.4  # Increased from 0.3
-    MAX_ASPECT_RATIO = 3.0  # Decreased from 4.0
+    # Relaxed thresholds - Accept more images from news sites
+    BLUR_THRESHOLD = 50.0  # Lowered to accept more images
+    BLUR_THRESHOLD_STRICT = 80.0  # Lowered
+    MIN_COLOR_DIVERSITY = 500  # Lowered
+    MIN_EDGE_DENSITY = 0.01  # Lowered significantly
+    MIN_BRIGHTNESS = 20  # Lowered
+    MAX_BRIGHTNESS = 240  # Increased
+    MIN_CONTRAST = 15  # Lowered
+    MIN_IMAGE_WIDTH = 400  # Lowered to accept more images
+    MIN_IMAGE_HEIGHT = 250  # Lowered
+    MIN_ASPECT_RATIO = 0.3  # Lowered
+    MAX_ASPECT_RATIO = 4.0  # Increased
 
     # Patterns for detecting unwanted images
     LOGO_URL_KEYWORDS = [
@@ -378,7 +378,7 @@ class ImageQualityAssessor:
             confidence = min(watermark_indicators / 4.0, 1.0)
 
             return {
-                'has_watermark': watermark_indicators >= 2,
+                'has_watermark': watermark_indicators >= 4,  # Relaxed: was 2, now 4
                 'watermark_confidence': confidence,
                 'corner_indicators': watermark_indicators
             }

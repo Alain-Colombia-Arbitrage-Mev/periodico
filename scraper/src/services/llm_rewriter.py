@@ -5,7 +5,18 @@ import httpx
 import json
 from typing import Optional, Dict
 from loguru import logger
-from ..models.article import Article
+
+# Flexible import for Article model
+try:
+    from ..models.article import Article
+except ImportError:
+    try:
+        from models.article import Article
+    except ImportError:
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from models.article import Article
 
 
 class LLMRewriter:

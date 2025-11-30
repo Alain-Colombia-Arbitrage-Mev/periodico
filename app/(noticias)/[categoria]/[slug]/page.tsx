@@ -1,9 +1,8 @@
-'use client';
-
-import { use, useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import ArticlePage from '@/components/ArticlePage';
 import { supabaseHelpers } from '@/lib/supabase';
+
+export const runtime = 'edge';
 
 interface PageProps {
   params: Promise<{
@@ -33,89 +32,47 @@ interface Noticia {
   };
 }
 
-export default function ArticleDetailPage({ params }: PageProps) {
-  // Unwrap params Promise for Next.js 15+
-  const { categoria, slug } = use(params);
+export default async function ArticleDetailPage({ params }: PageProps) {
+  const { categoria, slug } = await params;
 
-  const [noticia, setNoticia] = useState<Noticia | null>(null);
-  const [relatedArticles, setRelatedArticles] = useState<any[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notFoundError, setNotFoundError] = useState(false);
+  // Fetch the article by slug
+  const { data, error } = await supabaseHelpers.getNoticiaBySlug(slug);
 
-  useEffect(() => {
-    async function fetchArticle() {
-      try {
-        // Fetch the article by slug
-        const { data, error } = await supabaseHelpers.getNoticiaBySlug(slug);
-
-        if (error || !data || data.length === 0) {
-          setNotFoundError(true);
-          setLoading(false);
-          return;
-        }
-
-        const article = data[0] as Noticia;
-
-        // Verify the category matches
-        if (article.categorias?.slug !== categoria) {
-          setNotFoundError(true);
-          setLoading(false);
-          return;
-        }
-
-        setNoticia(article);
-
-        // Fetch tags for this article
-        const { data: tagsData } = await supabaseHelpers.getNoticiasTags(article.id);
-        const fetchedTags = tagsData?.map((t: any) => t.tags.name) || [];
-        setTags(fetchedTags);
-
-        // Fetch related articles from the same category
-        const { data: relatedData } = await supabaseHelpers.getNoticias({
-          status: 'published',
-          category: categoria,
-          limit: 6
-        });
-
-        if (relatedData) {
-          // Prioritize articles with shared tags
-          const filtered = relatedData
-            .filter((n: any) => n.id !== article.id)
-            .map((n: any) => ({
-              id: n.id,
-              title: n.title,
-              imageUrl: n.image_url,
-              category: n.categorias?.name || 'Noticias',
-              categorySlug: n.categorias?.slug || 'noticias',
-              slug: n.slug,
-            }))
-            .slice(0, 4);
-
-          setRelatedArticles(filtered);
-        }
-      } catch (error) {
-        console.error('Error fetching article:', error);
-        setNotFoundError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchArticle();
-  }, [slug, categoria]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg">Cargando artículo...</p>
-      </div>
-    );
-  }
-
-  if (notFoundError || !noticia) {
+  if (error || !data || data.length === 0) {
     notFound();
   }
+
+  const noticia = data[0] as Noticia;
+
+  // Verify the category matches
+  if (noticia.categorias?.slug !== categoria) {
+    notFound();
+  }
+
+  // Fetch tags for this article
+  const { data: tagsData } = await supabaseHelpers.getNoticiasTags(noticia.id);
+  const tags = tagsData?.map((t: any) => t.tags.name) || [];
+
+  // Fetch related articles from the same category
+  const { data: relatedData } = await supabaseHelpers.getNoticias({
+    status: 'published',
+    category: categoria,
+    limit: 6
+  });
+
+  const relatedArticles = relatedData
+    ? relatedData
+        .filter((n: any) => n.id !== noticia.id)
+        .map((n: any) => ({
+          id: n.id,
+          title: n.title,
+          imageUrl: n.image_url,
+          category: n.categorias?.name || 'Noticias',
+          categorySlug: n.categorias?.slug || 'noticias',
+          slug: n.slug,
+        }))
+        .slice(0, 4)
+    : [];
 
   // Convert Noticia to Article format for ArticlePage component
   const article = {
