@@ -2,9 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Output standalone for Docker
-  output: 'standalone',
-
   // Ignore build errors for Cloudflare deployment
   typescript: {
     ignoreBuildErrors: true,
