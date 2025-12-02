@@ -32,16 +32,22 @@ class DolarService {
    */
   async getDolarAPI(): Promise<DolarData | null> {
     try {
+      // No usar next: { revalidate } porque no funciona en Cloudflare edge
       const response = await fetch('https://dolarapi.com/v1/dolares', {
-        next: { revalidate: 300 }, // Revalidar cada 5 minutos
+        cache: 'no-store', // Siempre obtener datos frescos
         headers: {
           'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)',
         },
       });
 
-      if (!response.ok) throw new Error('Error fetching DolarAPI');
+      if (!response.ok) {
+        console.error('DolarAPI response not ok:', response.status);
+        throw new Error('Error fetching DolarAPI');
+      }
 
       const data = await response.json();
+      console.log('DolarAPI data received:', data?.length, 'items');
 
       return this.parseDolarAPIResponse(data);
     } catch (error) {
@@ -56,9 +62,10 @@ class DolarService {
   async getCriptoYaData(): Promise<Partial<DolarData> | null> {
     try {
       const response = await fetch('https://criptoya.com/api/dolar', {
-        next: { revalidate: 300 },
+        cache: 'no-store',
         headers: {
           'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)',
         },
       });
 
