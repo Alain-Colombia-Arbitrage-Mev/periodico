@@ -1,13 +1,14 @@
 [Unit]
-Description=Run News Scraper once daily
+Description=Run News Scraper every 5 hours
 
 [Timer]
-# Run once daily at 6:00 AM
-OnCalendar=*-*-* 06:00:00
+# Run every 5 hours
+OnBootSec=5min
+OnUnitActiveSec=5h
 # Run immediately after boot if a scheduled run was missed
 Persistent=true
-# Random delay up to 10 minutes to avoid exact timing
-RandomizedDelaySec=600
+# Random delay up to 5 minutes to avoid exact timing
+RandomizedDelaySec=300
 
 [Install]
 WantedBy=timers.target

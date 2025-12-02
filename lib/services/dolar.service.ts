@@ -120,52 +120,63 @@ class DolarService {
     // Intentar obtener de DolarAPI
     const apiData = await this.getDolarAPI();
 
-    if (apiData) {
-      // Enriquecer con datos de CriptoYa (MEP y CCL)
-      const criptoYaData = await this.getCriptoYaData();
-
-      if (criptoYaData) {
-        // Combinar datos: DolarAPI + CriptoYa
-        const combinedData = {
-          ...apiData,
-          mep: criptoYaData.mep || apiData.mep,
-          ccl: criptoYaData.ccl || apiData.ccl,
-        };
-
-        this.cache = combinedData;
-        this.cacheTime = now;
-        return combinedData;
-      }
-
-      this.cache = apiData;
-      this.cacheTime = now;
-      return apiData;
+    if (!apiData) {
+      // Si no hay datos, lanzar error para que el componente lo maneje
+      throw new Error('No se pudieron obtener cotizaciones de ninguna fuente');
     }
 
-    // Si falla, retornar datos por defecto
-    return this.getDefaultData();
+    // Enriquecer con datos de CriptoYa (MEP y CCL más precisos)
+    const criptoYaData = await this.getCriptoYaData();
+
+    if (criptoYaData) {
+      // Combinar datos: DolarAPI + CriptoYa
+      const combinedData = {
+        ...apiData,
+        mep: criptoYaData.mep || apiData.mep,
+        ccl: criptoYaData.ccl || apiData.ccl,
+      };
+
+      this.cache = combinedData;
+      this.cacheTime = now;
+      return combinedData;
+    }
+
+    this.cache = apiData;
+    this.cacheTime = now;
+    return apiData;
   }
 
   /**
    * Parsea respuesta de DolarAPI
    */
   private parseDolarAPIResponse(data: any[]): DolarData {
-    const findQuote = (nombre: string) => {
-      const item = data.find(d => d.nombre?.toLowerCase().includes(nombre.toLowerCase()));
+    const findQuote = (casa: string) => {
+      const item = data.find(d => d.casa === casa);
       return {
         compra: item?.compra || 0,
-        venta: item?.venta || 0,
-        variacion: this.calculateVariation(item?.compra, item?.venta),
+        venta: item?.venta || item?.compra || 0,
+        variacion: this.calculateVariation(item?.compra, item?.venta || item?.compra),
         fecha: item?.fechaActualizacion || new Date().toISOString(),
       };
     };
 
+    // Dolar oficial para calcular solidario (oficial + 30% impuesto PAIS + 30% percepción)
+    const oficialItem = data.find(d => d.casa === 'oficial');
+    const oficialVenta = oficialItem?.venta || 0;
+    // Solidario ya no tiene impuesto PAIS (eliminado dic 2024), solo 30% percepción ganancias
+    const solidarioVenta = Math.round(oficialVenta * 1.30);
+
     return {
       oficial: findQuote('oficial'),
       blue: findQuote('blue'),
-      mep: findQuote('mep'),
-      ccl: findQuote('ccl'),
-      solidario: findQuote('solidario'),
+      mep: findQuote('bolsa'), // DolarAPI llama "bolsa" al MEP
+      ccl: findQuote('contadoconliqui'), // DolarAPI llama "contadoconliqui" al CCL
+      solidario: {
+        compra: Math.round(oficialVenta * 1.25),
+        venta: solidarioVenta,
+        variacion: 0,
+        fecha: oficialItem?.fechaActualizacion || new Date().toISOString(),
+      },
       mayorista: findQuote('mayorista'),
       cripto: findQuote('cripto'),
       tarjeta: findQuote('tarjeta'),
@@ -210,30 +221,6 @@ class DolarService {
         variacion: cclVariation,
         fecha: new Date().toISOString(),
       },
-    };
-  }
-
-  /**
-   * Datos por defecto (fallback)
-   */
-  private getDefaultData(): DolarData {
-    const defaultQuote: DolarQuote = {
-      compra: 1000,
-      venta: 1020,
-      variacion: 0,
-      fecha: new Date().toISOString(),
-    };
-
-    return {
-      oficial: { ...defaultQuote, compra: 1025, venta: 1075 },
-      blue: { ...defaultQuote, compra: 1415, venta: 1445 },
-      mep: { ...defaultQuote, compra: 1454, venta: 1464 },
-      ccl: { ...defaultQuote, compra: 1466, venta: 1476 },
-      solidario: { ...defaultQuote, compra: 1333, venta: 1398 },
-      mayorista: { ...defaultQuote, compra: 1018, venta: 1038 },
-      cripto: { ...defaultQuote, compra: 1450, venta: 1470 },
-      tarjeta: { ...defaultQuote, compra: 1640, venta: 1720 },
-      timestamp: new Date(),
     };
   }
 
