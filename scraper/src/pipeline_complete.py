@@ -393,19 +393,21 @@ class NewsScrapingPipeline:
                     skipped += 1
                     continue
 
-                # Create slug
+                # Check if article already exists by source_url (not slug, because LLM changes titles)
+                source_url = article.get('url', '')
+                if source_url:
+                    existing = self.supabase.table('noticias')\
+                        .select('id')\
+                        .eq('source_url', source_url)\
+                        .execute()
+
+                    if existing.data:
+                        logger.info(f"⏭️  Article already exists (by source_url): {article['title'][:50]}...")
+                        skipped += 1
+                        continue
+
+                # Create slug after duplicate check
                 slug = self.create_slug(article['title'])
-
-                # Check if article already exists
-                existing = self.supabase.table('noticias')\
-                    .select('id')\
-                    .eq('slug', slug)\
-                    .execute()
-
-                if existing.data:
-                    logger.info(f"⏭️  Article already exists: {article['title'][:50]}...")
-                    skipped += 1
-                    continue
 
                 # Download and upload image
                 supabase_image_url = None
