@@ -119,20 +119,6 @@ export default function HomePage() {
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                                 priority={false}
                               />
-                              {/* Source type badge */}
-                              <div className="absolute top-2 left-2">
-                                {article.source_type === 1 ? (
-                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">
-                                    <Pen className="w-3 h-3" />
-                                    Editorial
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
-                                    <Bot className="w-3 h-3" />
-                                    Auto
-                                  </span>
-                                )}
-                              </div>
                             </div>
                           ) : (
                             <div className="relative w-full aspect-video bg-gray-100 flex items-center justify-center rounded-sm">
