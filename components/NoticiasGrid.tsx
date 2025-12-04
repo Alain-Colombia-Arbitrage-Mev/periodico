@@ -61,18 +61,6 @@ function NoticiaCard({ noticia, showSourceBadge = true }: { noticia: Noticia; sh
             <span className={`category-badge ${getCategoryClass(noticia.category_slug)}`}>
               {noticia.category}
             </span>
-            {showSourceBadge && noticia.source_type === 0 && (
-              <span className="category-badge bg-purple-600 text-white text-xs flex items-center gap-1">
-                <Bot className="w-3 h-3" />
-                Auto
-              </span>
-            )}
-            {showSourceBadge && noticia.source_type === 1 && (
-              <span className="category-badge bg-blue-600 text-white text-xs flex items-center gap-1">
-                <Pen className="w-3 h-3" />
-                Editorial
-              </span>
-            )}
             {noticia.is_breaking && (
               <span className="category-badge bg-red-600 text-white animate-pulse">
                 URGENTE
