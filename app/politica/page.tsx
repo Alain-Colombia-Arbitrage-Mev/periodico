@@ -7,7 +7,7 @@ import MainHeadline from '@/components/nyt/MainHeadline';
 import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
-import { Landmark, Pen, Bot } from 'lucide-react';
+import { Landmark } from 'lucide-react';
 
 interface Noticia {
   id: string;

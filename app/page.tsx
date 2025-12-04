@@ -8,7 +8,6 @@ import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
 import { SkeletonPage } from '@/components/SkeletonLoaders';
-import { Pen, Bot } from 'lucide-react';
 
 interface Noticia {
   id: string;
