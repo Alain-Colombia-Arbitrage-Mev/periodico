@@ -7,7 +7,7 @@ import MainHeadline from '@/components/nyt/MainHeadline';
 import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
-import { TrendingUp, Pen, Bot } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 interface Noticia {
   id: string;
