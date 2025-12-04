@@ -68,7 +68,7 @@ export default function ArticleDetailPage({ params }: PageProps) {
 
         // Fetch tags for this article
         const { data: tagsData } = await supabaseHelpers.getNoticiasTags(article.id);
-        const fetchedTags = tagsData?.map((t: any) => t.tags.name) || [];
+        const fetchedTags = tagsData?.map((t: any) => t.tags.name).filter((tag: string) => tag.toLowerCase() !== 'auto') || [];
         setTags(fetchedTags);
 
         // Fetch related articles from the same category

@@ -139,13 +139,13 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
             </div>
 
             {/* Tags */}
-            {article.tags.length > 0 && (
+            {article.tags.filter(tag => tag.toLowerCase() !== 'auto').length > 0 && (
               <div className="mt-12 pt-8 border-t" style={{ borderColor: 'var(--nyt-divider)' }}>
                 <h3 className="text-lg font-semibold mb-4" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                   Etiquetas:
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {article.tags.map((tag, index) => (
+                  {article.tags.filter(tag => tag.toLowerCase() !== 'auto').map((tag, index) => (
                     <Link
                       key={index}
                       href={`/tags/${tag.toLowerCase().replace(/\s+/g, '-')}`}
