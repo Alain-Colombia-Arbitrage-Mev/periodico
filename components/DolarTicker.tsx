@@ -31,8 +31,8 @@ export default function DolarTicker() {
     return new Intl.NumberFormat('es-AR', {
       style: 'currency',
       currency: 'ARS',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
@@ -53,19 +53,22 @@ export default function DolarTicker() {
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex items-center gap-6 px-6">
               {quotes.map((quote, idx) => {
-                const avg = (quote.data.compra + quote.data.venta) / 2;
                 const isPositive = quote.data.variacion >= 0;
-                
+
                 return (
                   <div key={`${i}-${idx}`} className="flex items-center gap-2 whitespace-nowrap">
-                    <span 
+                    <span
                       className="text-xs font-bold uppercase tracking-wide"
                       style={{ color: quote.color }}
                     >
                       {quote.label}
                     </span>
-                    <span className="text-sm font-semibold">
-                      {formatPrice(avg)}
+                    <span className="text-sm">
+                      <span className="text-gray-400 text-xs">C:</span>
+                      <span className="font-semibold ml-0.5">{formatPrice(quote.data.compra)}</span>
+                      <span className="text-gray-500 mx-1">/</span>
+                      <span className="text-gray-400 text-xs">V:</span>
+                      <span className="font-semibold ml-0.5">{formatPrice(quote.data.venta)}</span>
                     </span>
                     {quote.data.variacion !== 0 && (
                       <span className={`flex items-center gap-0.5 text-xs ${isPositive ? 'text-green-400' : 'text-red-400'}`}>

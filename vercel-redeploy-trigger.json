@@ -1,9 +1,0 @@
-{
-  "trigger": "MEGA_EXTREME_FORCE_REDEPLOY",
-  "timestamp": 1762199700,
-  "version": "2.3.0-NAVIGATION-OPTIMIZED",
-  "force_level": "MAXIMUM_PRIORITY",
-  "cache_invalidation": "COMPLETE",
-  "deployment_id": "navigation-menu-ultra-force-v2"
-}
-

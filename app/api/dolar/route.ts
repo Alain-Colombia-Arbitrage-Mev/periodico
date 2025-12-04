@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dolarService } from '@/lib/services/dolar.service';
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 export const revalidate = 300; // Revalidar cada 5 minutos
 

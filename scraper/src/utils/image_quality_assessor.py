@@ -26,18 +26,18 @@ class ImageQualityAssessor:
     - Advertisement banners
     """
 
-    # Enhanced thresholds
-    BLUR_THRESHOLD = 100.0
-    BLUR_THRESHOLD_STRICT = 150.0
-    MIN_COLOR_DIVERSITY = 1000
-    MIN_EDGE_DENSITY = 0.05
-    MIN_BRIGHTNESS = 30
-    MAX_BRIGHTNESS = 225
-    MIN_CONTRAST = 25
-    MIN_IMAGE_WIDTH = 300
-    MIN_IMAGE_HEIGHT = 200
-    MIN_ASPECT_RATIO = 0.3
-    MAX_ASPECT_RATIO = 4.0
+    # Relaxed thresholds - Accept more images from news sites
+    BLUR_THRESHOLD = 50.0  # Lowered to accept more images
+    BLUR_THRESHOLD_STRICT = 80.0  # Lowered
+    MIN_COLOR_DIVERSITY = 500  # Lowered
+    MIN_EDGE_DENSITY = 0.01  # Lowered significantly
+    MIN_BRIGHTNESS = 20  # Lowered
+    MAX_BRIGHTNESS = 240  # Increased
+    MIN_CONTRAST = 15  # Lowered
+    MIN_IMAGE_WIDTH = 400  # Lowered to accept more images
+    MIN_IMAGE_HEIGHT = 250  # Lowered
+    MIN_ASPECT_RATIO = 0.3  # Lowered
+    MAX_ASPECT_RATIO = 4.0  # Increased
 
     # Patterns for detecting unwanted images
     LOGO_URL_KEYWORDS = [
@@ -378,7 +378,7 @@ class ImageQualityAssessor:
             confidence = min(watermark_indicators / 4.0, 1.0)
 
             return {
-                'has_watermark': watermark_indicators >= 2,
+                'has_watermark': watermark_indicators >= 4,  # Relaxed: was 2, now 4
                 'watermark_confidence': confidence,
                 'corner_indicators': watermark_indicators
             }
@@ -534,12 +534,13 @@ class ImageQualityAssessor:
         if watermark['has_watermark']:
             rejection_reasons.append(f"Watermark detected ({watermark['watermark_confidence']:.0%})")
 
-        # Final acceptance decision
+        # Final acceptance decision - Stricter threshold for better quality
         is_acceptable = (
-            score >= 45.0 and
+            score >= 55.0 and  # Increased from 45 for higher quality
             not color['is_likely_logo'] and
             not watermark['has_watermark'] and
-            not color['is_solid_color']
+            not color['is_solid_color'] and
+            sharpness['is_sharp']  # Must be sharp
         )
 
         result = {

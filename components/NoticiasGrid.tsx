@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Eye } from 'lucide-react';
+import { Eye, Pen, Bot } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import NewsImage from './NewsImage';
@@ -20,7 +20,7 @@ interface Noticia {
   author: string;
   views: number;
   is_breaking: boolean;
-  source_type: number;
+  source_type: number;  // 0 = scraped, 1 = manual
   source_url?: string;
   published_at: string;
   created_at: string;
@@ -30,6 +30,7 @@ interface NoticiasGridProps {
   category?: string;
   limit?: number;
   className?: string;
+  dualGrid?: boolean;  // If true, shows manual on left, scraped on right
 }
 
 function getCategoryClass(slug: string) {
@@ -43,7 +44,76 @@ function getCategoryClass(slug: string) {
   return classes[slug] || 'bg-gray-600 text-white';
 }
 
-export default function NoticiasGrid({ category, limit = 12, className = '' }: NoticiasGridProps) {
+function NoticiaCard({ noticia, showSourceBadge = true }: { noticia: Noticia; showSourceBadge?: boolean }) {
+  return (
+    <article className="ln-card group cursor-pointer overflow-hidden">
+      <Link href={`/${noticia.category_slug}/${noticia.slug}`}>
+        <div className="relative aspect-video overflow-hidden">
+          <NewsImage
+            src={noticia.image_url}
+            alt={noticia.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={false}
+          />
+          <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
+            <span className={`category-badge ${getCategoryClass(noticia.category_slug)}`}>
+              {noticia.category}
+            </span>
+            {showSourceBadge && noticia.source_type === 0 && (
+              <span className="category-badge bg-purple-600 text-white text-xs flex items-center gap-1">
+                <Bot className="w-3 h-3" />
+                Auto
+              </span>
+            )}
+            {showSourceBadge && noticia.source_type === 1 && (
+              <span className="category-badge bg-blue-600 text-white text-xs flex items-center gap-1">
+                <Pen className="w-3 h-3" />
+                Editorial
+              </span>
+            )}
+            {noticia.is_breaking && (
+              <span className="category-badge bg-red-600 text-white animate-pulse">
+                URGENTE
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="p-4 space-y-2">
+          <h3 className="article-title text-base lg:text-lg group-hover:text-blue-600 transition-colors line-clamp-3 leading-tight">
+            {noticia.title}
+          </h3>
+          {noticia.subtitle && (
+            <p className="text-sm font-medium text-gray-600 line-clamp-1">
+              {noticia.subtitle}
+            </p>
+          )}
+          <p className="article-excerpt line-clamp-2 text-sm leading-relaxed">
+            {noticia.excerpt}
+          </p>
+          <div className="article-meta text-xs pt-2 flex-wrap" style={{borderTop: '1px solid var(--ln-neutral-200)'}}>
+            <time style={{color: 'var(--ln-neutral-400)'}}>
+              {formatDistanceToNow(new Date(noticia.published_at), {
+                addSuffix: true,
+                locale: es
+              })}
+            </time>
+            <span className="hidden sm:inline">•</span>
+            <span className="flex items-center gap-1 sm:inline-flex" style={{color: 'var(--ln-neutral-400)'}}>
+              <Eye className="w-3 h-3" />
+              {noticia.views.toLocaleString()}
+            </span>
+            <span className="hidden md:inline">•</span>
+            <span className="hidden md:inline" style={{color: 'var(--ln-neutral-400)'}}>{noticia.author}</span>
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
+}
+
+export default function NoticiasGrid({ category, limit = 12, className = '', dualGrid = false }: NoticiasGridProps) {
   const [noticias, setNoticias] = useState<Noticia[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,66 +179,55 @@ export default function NoticiasGrid({ category, limit = 12, className = '' }: N
     );
   }
 
+  // Dual grid mode: manual news on left, scraped on right
+  if (dualGrid) {
+    const manualNews = noticias.filter(n => n.source_type === 1);
+    const scrapedNews = noticias.filter(n => n.source_type === 0);
+
+    return (
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${className}`}>
+        {/* Left Column - Manual/Editorial News */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 pb-2 border-b-2 border-blue-600">
+            <Pen className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-bold text-gray-800">Noticias Editoriales</h3>
+          </div>
+          {manualNews.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+              {manualNews.map((noticia) => (
+                <NoticiaCard key={noticia.id} noticia={noticia} showSourceBadge={false} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No hay noticias editoriales disponibles.</p>
+          )}
+        </div>
+
+        {/* Right Column - Scraped/Auto News */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 pb-2 border-b-2 border-purple-600">
+            <Bot className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-bold text-gray-800">Noticias Automáticas</h3>
+          </div>
+          {scrapedNews.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+              {scrapedNews.map((noticia) => (
+                <NoticiaCard key={noticia.id} noticia={noticia} showSourceBadge={false} />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">No hay noticias automáticas disponibles.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Standard grid (ordered: manual first, then scraped)
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
       {noticias.map((noticia) => (
-        <article key={noticia.id} className="ln-card group cursor-pointer overflow-hidden">
-          <Link href={`/${noticia.category_slug}/${noticia.slug}`}>
-            <div className="relative aspect-video overflow-hidden">
-              <NewsImage
-                src={noticia.image_url}
-                alt={noticia.title}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                priority={false}
-              />
-              <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
-                <span className={`category-badge ${getCategoryClass(noticia.category_slug)}`}>
-                  {noticia.category}
-                </span>
-                {noticia.source_type === 0 && (
-                  <span className="category-badge bg-purple-600 text-white text-xs">
-                    Auto
-                  </span>
-                )}
-                {noticia.is_breaking && (
-                  <span className="category-badge bg-red-600 text-white animate-pulse">
-                    URGENTE
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="p-4 space-y-2">
-              <h3 className="article-title text-base lg:text-lg group-hover:text-blue-600 transition-colors line-clamp-3 leading-tight">
-                {noticia.title}
-              </h3>
-              {noticia.subtitle && (
-                <p className="text-sm font-medium text-gray-600 line-clamp-1">
-                  {noticia.subtitle}
-                </p>
-              )}
-              <p className="article-excerpt line-clamp-2 text-sm leading-relaxed">
-                {noticia.excerpt}
-              </p>
-              <div className="article-meta text-xs pt-2 flex-wrap" style={{borderTop: '1px solid var(--ln-neutral-200)'}}>
-                <time style={{color: 'var(--ln-neutral-400)'}}>
-                  {formatDistanceToNow(new Date(noticia.published_at), {
-                    addSuffix: true,
-                    locale: es
-                  })}
-                </time>
-                <span className="hidden sm:inline">•</span>
-                <span className="flex items-center gap-1 sm:inline-flex" style={{color: 'var(--ln-neutral-400)'}}>
-                  <Eye className="w-3 h-3" />
-                  {noticia.views.toLocaleString()}
-                </span>
-                <span className="hidden md:inline">•</span>
-                <span className="hidden md:inline" style={{color: 'var(--ln-neutral-400)'}}>{noticia.author}</span>
-              </div>
-            </div>
-          </Link>
-        </article>
+        <NoticiaCard key={noticia.id} noticia={noticia} />
       ))}
     </div>
   );

@@ -1,3 +1,6 @@
+# Scraper (excluded from frontend branch)
+scraper/
+
 # Dependencies
 node_modules/
 .pnpm-store/

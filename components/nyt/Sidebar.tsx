@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import NewsImage from '@/components/NewsImage';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useEffect, useState } from 'react';
@@ -14,6 +14,11 @@ interface Article {
   slug: string;
   category_slug: string;
   published_at: string;
+  categorias?: {
+    name: string;
+    slug: string;
+    color: string;
+  };
 }
 
 interface SidebarProps {
@@ -30,9 +35,24 @@ interface SidebarProps {
 
 export default function Sidebar({ featuredArticle, sideArticles, opinions }: SidebarProps) {
   const [recommendedArticles, setRecommendedArticles] = useState<Article[]>([]);
+  const [isMobile, setIsMobile] = useState(true); // Default to mobile (hidden)
 
   useEffect(() => {
-    // Fetch recommended articles for "En Caso de que te lo Perdiste"
+    // Check if we're on desktop
+    const checkIfDesktop = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkIfDesktop();
+    window.addEventListener('resize', checkIfDesktop);
+
+    return () => window.removeEventListener('resize', checkIfDesktop);
+  }, []);
+
+  useEffect(() => {
+    // Only fetch if on desktop
+    if (isMobile) return;
+
     async function fetchRecommended() {
       try {
         const res = await fetch('/api/noticias?limit=4');
@@ -47,22 +67,28 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
       }
     }
     fetchRecommended();
-  }, []);
+  }, [isMobile]);
+
+  // Don't render anything on mobile/tablet
+  if (isMobile) {
+    return null;
+  }
+
   return (
-    <aside className="w-full max-w-full lg:max-w-[335px] space-y-6 lg:sticky lg:top-8">
+    <aside className="w-[335px] space-y-6 sticky top-8">
       {/* Featured Article */}
       {featuredArticle && (
         <article className="border-b pb-6" style={{ borderColor: 'var(--nyt-border)' }}>
           <Link href={`/${featuredArticle.category_slug}/${featuredArticle.slug}`}>
             {featuredArticle.image_url ? (
               <div className="relative w-full h-[225px] mb-4 overflow-hidden rounded">
-                <Image
+                <NewsImage
                   src={featuredArticle.image_url}
                   alt={featuredArticle.title}
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-300"
                   sizes="335px"
-                  unoptimized
+                  quality={90}
                 />
               </div>
             ) : (
@@ -102,13 +128,13 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
               >
                 {article.image_url ? (
                   <div className="relative w-full h-[100px] mb-2 overflow-hidden rounded">
-                    <Image
+                    <NewsImage
                       src={article.image_url}
                       alt={article.title}
                       fill
                       className="object-cover group-hover:opacity-90 transition"
                       sizes="152px"
-                      unoptimized
+                      quality={90}
                     />
                   </div>
                 ) : (
@@ -155,39 +181,43 @@ export default function Sidebar({ featuredArticle, sideArticles, opinions }: Sid
         {/* Recommended articles */}
         {recommendedArticles.length > 0 && (
           <div className="space-y-5">
-            {recommendedArticles.map((article) => (
-              <Link
-                key={article.id}
-                href={`/${article.category_slug}/${article.slug}`}
-                className="block group"
-              >
-                <article className="flex gap-3 pb-5 border-b border-gray-200 last:border-0 last:pb-0">
-                  {article.image_url && (
-                    <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded">
-                      <Image
-                        src={article.image_url}
-                        alt={article.title}
-                        fill
-                        className="object-cover group-hover:opacity-90 transition"
-                        sizes="80px"
-                        unoptimized
-                      />
+            {recommendedArticles.map((article: any) => {
+              // Use categorias.slug if available, fallback to category_slug or 'politica'
+              const categorySlug = article.categorias?.slug || article.category_slug || 'politica';
+              return (
+                <Link
+                  key={article.id}
+                  href={`/${categorySlug}/${article.slug}`}
+                  className="block group"
+                >
+                  <article className="flex gap-3 pb-5 border-b border-gray-200 last:border-0 last:pb-0">
+                    {article.image_url && (
+                      <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded">
+                        <NewsImage
+                          src={article.image_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover group-hover:opacity-90 transition"
+                          sizes="80px"
+                          quality={90}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[14px] font-bold line-clamp-3 group-hover:opacity-80 transition leading-snug mb-2" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+                        {article.title}
+                      </h4>
+                      <p className="text-[10px]" style={{ color: 'var(--nyt-text-gray)' }}>
+                        {formatDistanceToNow(new Date(article.published_at), {
+                          addSuffix: true,
+                          locale: es
+                        })}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-[14px] font-bold line-clamp-3 group-hover:opacity-80 transition leading-snug mb-2" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
-                      {article.title}
-                    </h4>
-                    <p className="text-[10px]" style={{ color: 'var(--nyt-text-gray)' }}>
-                      {formatDistanceToNow(new Date(article.published_at), {
-                        addSuffix: true,
-                        locale: es
-                      })}
-                    </p>
-                  </div>
-                </article>
-              </Link>
-            ))}
+                  </article>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>

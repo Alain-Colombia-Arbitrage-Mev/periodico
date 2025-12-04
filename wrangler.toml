@@ -1,0 +1,8 @@
+name = "periodico"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://dnacsmoubqrzpbvjhary.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuYWNzbW91YnFyenBidmpoYXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MTY3MDYsImV4cCI6MjA3ODM5MjcwNn0.xIZw6wsO-YHzTNQXpLCvrI5hWLFefjyz2wLA1lNMX6Y"

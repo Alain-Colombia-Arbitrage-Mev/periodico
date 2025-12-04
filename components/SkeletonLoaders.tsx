@@ -101,27 +101,19 @@ export function SkeletonSidebar() {
 export function SkeletonPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Main Content Area */}
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Main Column */}
-          <div className="lg:col-span-8">
-            {/* Section Title */}
-            <div className="mb-6 lg:mb-8">
-              <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
-            </div>
-
-            {/* Main Headline */}
-            <SkeletonMainHeadline />
-
-            {/* Articles Grid */}
-            <SkeletonGrid />
+      {/* Main Content Area - No sidebar */}
+      <main className="max-w-[900px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+        <div className="w-full">
+          {/* Section Title */}
+          <div className="mb-6 lg:mb-8">
+            <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
           </div>
 
-          {/* Sidebar - Hidden on mobile */}
-          <div className="hidden lg:block lg:col-span-4">
-            <SkeletonSidebar />
-          </div>
+          {/* Main Headline */}
+          <SkeletonMainHeadline />
+
+          {/* Articles Grid */}
+          <SkeletonGrid />
         </div>
       </main>
     </div>

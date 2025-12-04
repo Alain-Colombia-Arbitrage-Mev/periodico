@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "pages:build": "npx @cloudflare/next-on-pages",
     "force-deploy": "echo 'Forcing deployment...' && npm run build",
     "verify": "node scripts/verificar-errores.js",
     "check-env": "node scripts/check-env.js"

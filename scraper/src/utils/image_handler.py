@@ -20,8 +20,8 @@ class ImageHandler:
     def __init__(
         self,
         output_dir: str = "data/images",
-        max_size: int = 2048,
-        quality: int = 85,
+        max_size: int = 2560,  # Increased for better quality
+        quality: int = 90,  # Increased for better quality
         timeout: int = 30,
         supabase_url: Optional[str] = None,
         supabase_key: Optional[str] = None,

@@ -39,8 +39,15 @@ try:
     from ..utils.image_quality_assessor import ImageQualityAssessor
     HAS_QUALITY_ASSESSOR = True
 except ImportError:
-    HAS_QUALITY_ASSESSOR = False
-    logger.warning("ImageQualityAssessor not available, using basic validation")
+    try:
+        # Alternative import path when running as script
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from utils.image_quality_assessor import ImageQualityAssessor
+        HAS_QUALITY_ASSESSOR = True
+    except ImportError as e:
+        HAS_QUALITY_ASSESSOR = False
+        logger.warning(f"ImageQualityAssessor not available, using basic validation: {e}")
 
 class StealthRSScraper:
     """Ultra Anti-detection RSS scraper with advanced image validation"""

@@ -7,8 +7,8 @@ import LiveSection from '@/components/nyt/LiveSection';
 import Sidebar from '@/components/nyt/Sidebar';
 import Link from 'next/link';
 import NewsImage from '@/components/NewsImage';
-import { useNoticias } from '@/lib/hooks/useNoticias';
 import { SkeletonPage } from '@/components/SkeletonLoaders';
+import { Pen, Bot } from 'lucide-react';
 
 interface Noticia {
   id: string;
@@ -39,24 +39,12 @@ export default function HomePage() {
   const { noticias: mainData, isLoading: mainLoading } = useMainArticle();
   const { breakingNews, isLoading: breakingLoading } = useBreakingNews();
   const { recentNews, isLoading: recentLoading } = useRecentNews(20);
-  const { noticias: featuredData, isLoading: featuredLoading } = useNoticias({
-    status: 'published',
-    limit: 1,
-    offset: 1
-  });
-  const { noticias: sideData, isLoading: sideLoading } = useNoticias({
-    status: 'published',
-    limit: 4,
-    offset: 2
-  });
 
   // Extraer datos
   const mainArticle = mainData && mainData.length > 0 ? mainData[0] as Noticia : null;
-  const featuredArticle = featuredData && featuredData.length > 0 ? featuredData[0] as Noticia : null;
-  const sideArticles = (sideData || []) as Noticia[];
 
   // Loading state combinado
-  const loading = mainLoading || breakingLoading || recentLoading || featuredLoading || sideLoading;
+  const loading = mainLoading || breakingLoading || recentLoading;
 
   if (loading) {
     return <SkeletonPage />;
@@ -66,11 +54,11 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <NYTHeader />
 
-      <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
-        {/* Grid Layout: 12 columnas - Main (8) + Sidebar (4) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Main Content - 8 columnas, ancho máximo 976px */}
-          <div className="lg:col-span-8 max-w-full lg:max-w-[976px]">
+      <main className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+        {/* Main Content with Sidebar on Desktop */}
+        <div className="flex gap-8">
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
             {/* Últimas Noticias - INICIO DEL HOME */}
             <div className="mb-6 lg:mb-8">
               <h2 className="text-2xl sm:text-3xl font-bold mb-4 lg:mb-6" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
@@ -114,12 +102,12 @@ export default function HomePage() {
             {/* Secondary Headlines - Mobile-First Responsive */}
             {recentNews.length > 0 ? (
               <div className="space-y-0">
-                {recentNews.map((article) => (
+                {recentNews.map((article: any) => (
                   <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-gray-300">
                     {/* Mobile-First: Stack vertically */}
                     <div className="flex flex-col gap-4">
                       {/* Image First on Mobile - Better UX */}
-                      <div className="w-full">
+                      <div className="w-full relative">
                         <Link href={`/${article.categorias?.slug || 'politica'}/${article.slug}`}>
                           {article.image_url ? (
                             <div className="relative w-full aspect-video overflow-hidden rounded-sm bg-gray-100">
@@ -131,6 +119,20 @@ export default function HomePage() {
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                                 priority={false}
                               />
+                              {/* Source type badge */}
+                              <div className="absolute top-2 left-2">
+                                {article.source_type === 1 ? (
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded">
+                                    <Pen className="w-3 h-3" />
+                                    Editorial
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-600 text-white text-xs font-medium rounded">
+                                    <Bot className="w-3 h-3" />
+                                    Auto
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           ) : (
                             <div className="relative w-full aspect-video bg-gray-100 flex items-center justify-center rounded-sm">
@@ -172,29 +174,9 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Sidebar - 4 columnas, ancho fijo 335px, sticky */}
-          <div className="lg:col-span-4 lg:max-w-[335px] lg:ml-auto">
-            <Sidebar
-              featuredArticle={featuredArticle ? {
-                id: featuredArticle.id,
-                title: featuredArticle.title,
-                excerpt: featuredArticle.excerpt,
-                image_url: featuredArticle.image_url,
-                slug: featuredArticle.slug,
-                category_slug: featuredArticle.categorias?.slug || 'politica',
-                published_at: featuredArticle.published_at
-              } : undefined}
-              sideArticles={sideArticles.map(a => ({
-                id: a.id,
-                title: a.title,
-                image_url: a.image_url,
-                slug: a.slug,
-                category_slug: a.categorias?.slug || 'politica',
-                published_at: a.published_at
-              }))}
-            />
+          {/* Sidebar - Hidden on Mobile */}
+          <Sidebar />
         </div>
-      </div>
       </main>
 
       {/* Footer - NYT Style */}

@@ -3,6 +3,8 @@
  * Serverless-optimized with caching and error handling
  */
 
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { noticiaService } from '@/lib/services/noticia.service';
 import { handleError } from '@/lib/utils';

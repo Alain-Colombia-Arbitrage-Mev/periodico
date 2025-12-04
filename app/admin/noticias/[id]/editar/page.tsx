@@ -10,7 +10,9 @@ import {
   Image as ImageIcon,
   Upload,
   X,
-  Loader2
+  Loader2,
+  Video,
+  Headphones
 } from 'lucide-react';
 
 export default function EditarNoticiaPage() {
@@ -25,6 +27,8 @@ export default function EditarNoticiaPage() {
     excerpt: '',
     content: '',
     imageUrl: '',
+    videoUrl: '',
+    audioUrl: '',
     author: '',
     tags: '',
     isBreaking: false,
@@ -64,6 +68,8 @@ export default function EditarNoticiaPage() {
           excerpt: noticia.excerpt || '',
           content: noticia.content || '',
           imageUrl: noticia.image_url || '',
+          videoUrl: noticia.video_url || '',
+          audioUrl: noticia.audio_url || '',
           author: noticia.author || 'Admin',
           tags: Array.isArray(noticia.tags) ? noticia.tags.join(', ') : '',
           isBreaking: noticia.is_breaking || false,
@@ -96,6 +102,8 @@ export default function EditarNoticiaPage() {
           excerpt: formData.excerpt,
           content: formData.content,
           image_url: formData.imageUrl,
+          video_url: formData.videoUrl || null,
+          audio_url: formData.audioUrl || null,
           author: formData.author,
           tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
           is_breaking: formData.isBreaking,
@@ -343,6 +351,86 @@ export default function EditarNoticiaPage() {
                   >
                     <X className="w-4 h-4" />
                   </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Video */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center gap-2">
+                <Video className="w-4 h-4 text-red-600" />
+                <span>Video (Opcional)</span>
+              </div>
+            </label>
+            <div className="space-y-3">
+              <input
+                type="text"
+                name="videoUrl"
+                value={formData.videoUrl}
+                onChange={handleChange}
+                placeholder="URL del video (YouTube, Vimeo, o archivo .mp4)"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500">
+                Soporta: YouTube, Vimeo, o enlaces directos a archivos .mp4
+              </p>
+              {formData.videoUrl && (
+                <div className="relative bg-gray-100 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <Video className="w-5 h-5 text-red-600" />
+                    <span className="text-sm text-gray-700 truncate flex-1">
+                      {formData.videoUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, videoUrl: '' }))}
+                      className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Audio */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex items-center gap-2">
+                <Headphones className="w-4 h-4 text-blue-600" />
+                <span>Audio (Opcional)</span>
+              </div>
+            </label>
+            <div className="space-y-3">
+              <input
+                type="text"
+                name="audioUrl"
+                value={formData.audioUrl}
+                onChange={handleChange}
+                placeholder="URL del audio (.mp3, .wav, .ogg)"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500">
+                Ideal para podcasts o versión de audio de la noticia
+              </p>
+              {formData.audioUrl && (
+                <div className="relative bg-gray-100 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <Headphones className="w-5 h-5 text-blue-600" />
+                    <span className="text-sm text-gray-700 truncate flex-1">
+                      {formData.audioUrl}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, audioUrl: '' }))}
+                      className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

@@ -32,16 +32,22 @@ class DolarService {
    */
   async getDolarAPI(): Promise<DolarData | null> {
     try {
+      // No usar next: { revalidate } porque no funciona en Cloudflare edge
       const response = await fetch('https://dolarapi.com/v1/dolares', {
-        next: { revalidate: 300 }, // Revalidar cada 5 minutos
+        cache: 'no-store', // Siempre obtener datos frescos
         headers: {
           'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)',
         },
       });
 
-      if (!response.ok) throw new Error('Error fetching DolarAPI');
+      if (!response.ok) {
+        console.error('DolarAPI response not ok:', response.status);
+        throw new Error('Error fetching DolarAPI');
+      }
 
       const data = await response.json();
+      console.log('DolarAPI data received:', data?.length, 'items');
 
       return this.parseDolarAPIResponse(data);
     } catch (error) {
@@ -56,9 +62,10 @@ class DolarService {
   async getCriptoYaData(): Promise<Partial<DolarData> | null> {
     try {
       const response = await fetch('https://criptoya.com/api/dolar', {
-        next: { revalidate: 300 },
+        cache: 'no-store',
         headers: {
           'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; NewsBot/1.0)',
         },
       });
 
@@ -108,20 +115,43 @@ class DolarService {
   }
 
   /**
+   * Fallback con valores actuales (solo si API falla)
+   */
+  private getEmergencyFallback(): DolarData {
+    const now = new Date().toISOString();
+    return {
+      oficial: { compra: 1425, venta: 1475, variacion: 0, fecha: now },
+      blue: { compra: 1425, venta: 1445, variacion: 0, fecha: now },
+      mep: { compra: 1480, venta: 1485, variacion: 0, fecha: now },
+      ccl: { compra: 1520, venta: 1525, variacion: 0, fecha: now },
+      solidario: { compra: 1850, venta: 1920, variacion: 0, fecha: now },
+      mayorista: { compra: 1446, venta: 1456, variacion: 0, fecha: now },
+      cripto: { compra: 1495, venta: 1515, variacion: 0, fecha: now },
+      tarjeta: { compra: 1850, venta: 1920, variacion: 0, fecha: now },
+      timestamp: new Date(),
+    };
+  }
+
+  /**
    * Obtiene las cotizaciones con cache
    */
   async getCotizaciones(): Promise<DolarData> {
-    // Verificar cache
+    // Verificar cache (en edge no funciona bien, pero lo dejamos por si acaso)
     const now = Date.now();
     if (this.cache && (now - this.cacheTime) < this.CACHE_DURATION) {
       return this.cache;
     }
 
-    // Intentar obtener de DolarAPI
-    const apiData = await this.getDolarAPI();
+    try {
+      // Intentar obtener de DolarAPI
+      const apiData = await this.getDolarAPI();
 
-    if (apiData) {
-      // Enriquecer con datos de CriptoYa (MEP y CCL)
+      if (!apiData) {
+        console.warn('DolarAPI returned null, using emergency fallback');
+        return this.getEmergencyFallback();
+      }
+
+      // Enriquecer con datos de CriptoYa (MEP y CCL más precisos)
       const criptoYaData = await this.getCriptoYaData();
 
       if (criptoYaData) {
@@ -140,32 +170,43 @@ class DolarService {
       this.cache = apiData;
       this.cacheTime = now;
       return apiData;
+    } catch (error) {
+      console.error('Error getting cotizaciones, using fallback:', error);
+      return this.getEmergencyFallback();
     }
-
-    // Si falla, retornar datos por defecto
-    return this.getDefaultData();
   }
 
   /**
    * Parsea respuesta de DolarAPI
    */
   private parseDolarAPIResponse(data: any[]): DolarData {
-    const findQuote = (nombre: string) => {
-      const item = data.find(d => d.nombre?.toLowerCase().includes(nombre.toLowerCase()));
+    const findQuote = (casa: string) => {
+      const item = data.find(d => d.casa === casa);
       return {
         compra: item?.compra || 0,
-        venta: item?.venta || 0,
-        variacion: this.calculateVariation(item?.compra, item?.venta),
+        venta: item?.venta || item?.compra || 0,
+        variacion: this.calculateVariation(item?.compra, item?.venta || item?.compra),
         fecha: item?.fechaActualizacion || new Date().toISOString(),
       };
     };
 
+    // Dolar oficial para calcular solidario (oficial + 30% impuesto PAIS + 30% percepción)
+    const oficialItem = data.find(d => d.casa === 'oficial');
+    const oficialVenta = oficialItem?.venta || 0;
+    // Solidario ya no tiene impuesto PAIS (eliminado dic 2024), solo 30% percepción ganancias
+    const solidarioVenta = Math.round(oficialVenta * 1.30);
+
     return {
       oficial: findQuote('oficial'),
       blue: findQuote('blue'),
-      mep: findQuote('mep'),
-      ccl: findQuote('ccl'),
-      solidario: findQuote('solidario'),
+      mep: findQuote('bolsa'), // DolarAPI llama "bolsa" al MEP
+      ccl: findQuote('contadoconliqui'), // DolarAPI llama "contadoconliqui" al CCL
+      solidario: {
+        compra: Math.round(oficialVenta * 1.25),
+        venta: solidarioVenta,
+        variacion: 0,
+        fecha: oficialItem?.fechaActualizacion || new Date().toISOString(),
+      },
       mayorista: findQuote('mayorista'),
       cripto: findQuote('cripto'),
       tarjeta: findQuote('tarjeta'),
@@ -210,30 +251,6 @@ class DolarService {
         variacion: cclVariation,
         fecha: new Date().toISOString(),
       },
-    };
-  }
-
-  /**
-   * Datos por defecto (fallback)
-   */
-  private getDefaultData(): DolarData {
-    const defaultQuote: DolarQuote = {
-      compra: 1000,
-      venta: 1020,
-      variacion: 0,
-      fecha: new Date().toISOString(),
-    };
-
-    return {
-      oficial: { ...defaultQuote, compra: 1025, venta: 1075 },
-      blue: { ...defaultQuote, compra: 1415, venta: 1445 },
-      mep: { ...defaultQuote, compra: 1454, venta: 1464 },
-      ccl: { ...defaultQuote, compra: 1466, venta: 1476 },
-      solidario: { ...defaultQuote, compra: 1333, venta: 1398 },
-      mayorista: { ...defaultQuote, compra: 1018, venta: 1038 },
-      cripto: { ...defaultQuote, compra: 1450, venta: 1470 },
-      tarjeta: { ...defaultQuote, compra: 1640, venta: 1720 },
-      timestamp: new Date(),
     };
   }
 

@@ -106,6 +106,7 @@ export const supabaseHelpers = {
     limit?: number;
     offset?: number;
     onlyRecent?: boolean;  // Filter only last 72 hours
+    separateBySource?: boolean;  // If true, returns { manual: [], scraped: [] }
   }) {
     // Use inner join only if filtering by category, otherwise use left join
     const joinType = filters?.category ? 'categorias!inner(name, slug, color)' : 'categorias(name, slug, color)';
@@ -116,6 +117,8 @@ export const supabaseHelpers = {
         *,
         ${joinType}
       `)
+      // Order by source_type DESC (1=manual first, 0=scraped second), then by date
+      .order('source_type', { ascending: false })
       .order('published_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
@@ -256,6 +259,58 @@ export const supabaseHelpers = {
       .in('id', noticiaIds)
       .eq('status', 'published')
       .order('published_at', { ascending: false, nullsFirst: false });
+  },
+
+  /**
+   * Get noticias separated by source type for dual grid layout
+   * Returns: { manual: Noticia[], scraped: Noticia[] }
+   */
+  async getNoticiasSeparated(filters?: {
+    category?: string;
+    status?: string;
+    limit?: number;
+  }) {
+    const joinType = filters?.category ? 'categorias!inner(name, slug, color)' : 'categorias(name, slug, color)';
+
+    // Get manual noticias (source_type = 1)
+    let manualQuery = supabase
+      .from('noticias')
+      .select(`*, ${joinType}`)
+      .eq('source_type', 1)
+      .order('published_at', { ascending: false, nullsFirst: false });
+
+    // Get scraped noticias (source_type = 0)
+    let scrapedQuery = supabase
+      .from('noticias')
+      .select(`*, ${joinType}`)
+      .eq('source_type', 0)
+      .order('published_at', { ascending: false, nullsFirst: false });
+
+    if (filters?.category) {
+      manualQuery = manualQuery.eq('categorias.slug', filters.category);
+      scrapedQuery = scrapedQuery.eq('categorias.slug', filters.category);
+    }
+
+    if (filters?.status) {
+      manualQuery = manualQuery.eq('status', filters.status);
+      scrapedQuery = scrapedQuery.eq('status', filters.status);
+    }
+
+    if (filters?.limit) {
+      manualQuery = manualQuery.limit(filters.limit);
+      scrapedQuery = scrapedQuery.limit(filters.limit);
+    }
+
+    const [manualResult, scrapedResult] = await Promise.all([
+      manualQuery,
+      scrapedQuery
+    ]);
+
+    return {
+      manual: manualResult.data || [],
+      scraped: scrapedResult.data || [],
+      error: manualResult.error || scrapedResult.error
+    };
   },
 };
 

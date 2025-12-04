@@ -14,6 +14,7 @@ interface NewsImageProps {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  quality?: number;
 }
 
 export default function NewsImage({
@@ -25,6 +26,7 @@ export default function NewsImage({
   className = '',
   sizes,
   priority = false,
+  quality = 90,
 }: NewsImageProps) {
   // Validate and clean image URL immediately
   const validatedSrc = validateImageUrl(src);
@@ -129,6 +131,7 @@ export default function NewsImage({
           className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}`}
           sizes={sizes}
           priority={priority}
+          quality={quality}
           onError={handleError}
           onLoad={handleLoad}
           unoptimized={!shouldOptimize}
@@ -155,6 +158,7 @@ export default function NewsImage({
         className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}`}
         sizes={sizes}
         priority={priority}
+        quality={quality}
         onError={handleError}
         onLoad={handleLoad}
         unoptimized={!shouldOptimize}
