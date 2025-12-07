@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import NYTHeader from '@/components/nyt/Header';
+import MediaPlayer from '@/components/MediaPlayer';
 import { Clock, Eye, Share2, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -14,6 +15,8 @@ interface Article {
   excerpt: string;
   content: string;
   imageUrl: string;
+  audioUrl?: string;
+  videoUrl?: string;
   publishedAt: Date;
   updatedAt?: Date;
   category: string;
@@ -181,6 +184,33 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
               </button>
             </div>
           </header>
+
+          {/* Audio/Video Player */}
+          {(article.audioUrl || article.videoUrl) && (
+            <div className="py-6 md:py-8 border-b border-gray-200">
+              {article.audioUrl && (
+                <div className="mb-6">
+                  <MediaPlayer
+                    src={article.audioUrl}
+                    type="audio"
+                    title={article.title}
+                    className="w-full"
+                  />
+                </div>
+              )}
+              {article.videoUrl && (
+                <div>
+                  <MediaPlayer
+                    src={article.videoUrl}
+                    type="video"
+                    poster={article.imageUrl}
+                    title={article.title}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Article Body */}
           <article className="pb-8 md:pb-12">
