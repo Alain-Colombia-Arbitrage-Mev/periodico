@@ -199,20 +199,28 @@ export const supabaseHelpers = {
   },
 
   async incrementViews(id: string) {
-    // Primero obtenemos las vistas actuales
-    const { data: current } = await supabase
-      .from('noticias')
-      .select('views')
-      .eq('id', id)
-      .single();
+    // Usar RPC con SECURITY DEFINER para bypass RLS
+    const { error } = await supabase.rpc('increment_views', { noticia_id: id });
     
-    const currentViews = current?.views || 0;
+    if (error) {
+      // Fallback: intentar UPDATE directo si RPC falla
+      console.warn('RPC increment_views failed, trying direct update:', error.message);
+      
+      const { data: current } = await supabase
+        .from('noticias')
+        .select('views')
+        .eq('id', id)
+        .single();
+      
+      const currentViews = current?.views || 0;
+      
+      return supabase
+        .from('noticias')
+        .update({ views: currentViews + 1 })
+        .eq('id', id);
+    }
     
-    // Luego actualizamos con el nuevo valor
-    return supabase
-      .from('noticias')
-      .update({ views: currentViews + 1 })
-      .eq('id', id);
+    return { data: null, error: null };
   },
 
   // Categorías
