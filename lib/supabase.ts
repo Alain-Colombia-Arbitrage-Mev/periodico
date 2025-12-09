@@ -199,7 +199,20 @@ export const supabaseHelpers = {
   },
 
   async incrementViews(id: string) {
-    return supabase.rpc('increment_views', { noticia_id: id });
+    // Primero obtenemos las vistas actuales
+    const { data: current } = await supabase
+      .from('noticias')
+      .select('views')
+      .eq('id', id)
+      .single();
+    
+    const currentViews = current?.views || 0;
+    
+    // Luego actualizamos con el nuevo valor
+    return supabase
+      .from('noticias')
+      .update({ views: currentViews + 1 })
+      .eq('id', id);
   },
 
   // Categorías
