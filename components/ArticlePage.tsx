@@ -7,6 +7,7 @@ import MediaPlayer from '@/components/MediaPlayer';
 import { Clock, Eye, Share2, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { formatArticleContent } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -216,7 +217,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
           <article className="pb-8 md:pb-12">
             <div
               className="article-content prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              dangerouslySetInnerHTML={{ __html: formatArticleContent(article.content) }}
             />
 
             <style jsx global>{`

@@ -46,6 +46,103 @@ export function titleCase(text: string): string {
 }
 
 // ============================================
+// CONTENT FORMATTING UTILITIES
+// ============================================
+
+/**
+ * Formatea el contenido del artículo para una mejor legibilidad
+ * - Detecta si el contenido ya tiene etiquetas HTML
+ * - Si no las tiene, divide el texto en párrafos
+ * - Convierte títulos detectados en encabezados H2/H3
+ */
+export function formatArticleContent(content: string): string {
+  if (!content) return '';
+  
+  // Si ya tiene etiquetas de párrafo bien formateadas, retornar
+  if (content.includes('<p>') && content.includes('</p>')) {
+    // Verificar si los párrafos tienen contenido sustancial
+    const paragraphs = content.match(/<p>[\s\S]*?<\/p>/g);
+    if (paragraphs && paragraphs.length > 2) {
+      return content;
+    }
+  }
+  
+  // Limpiar el contenido
+  let cleanContent = content
+    .replace(/<p>\s*<\/p>/g, '') // Eliminar párrafos vacíos
+    .replace(/<br\s*\/?>/gi, '\n') // Convertir br a saltos de línea
+    .replace(/&nbsp;/g, ' '); // Convertir nbsp a espacios
+  
+  // Si el contenido es texto plano sin HTML
+  if (!cleanContent.includes('<p>')) {
+    // Patrones para detectar títulos/subtítulos en el texto
+    const titlePatterns = [
+      /^([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]{5,50}:)/gm,  // TÍTULO EN MAYÚSCULAS:
+      /^(El [A-ZÁÉÍÓÚ][^.]{10,60}:)/gm,         // El Título: 
+      /^(La [A-ZÁÉÍÓÚ][^.]{10,60}:)/gm,         // La Título:
+      /^([\w\s]{10,50}:)\s*(?=[A-Z])/gm,        // Subtítulo: seguido de mayúscula
+    ];
+    
+    // Dividir por dobles saltos de línea o puntos seguidos de mayúscula
+    let paragraphs = cleanContent
+      .split(/\n\n+|\n(?=[A-ZÁÉÍÓÚÑ])/)
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+    
+    // Si no hay suficientes párrafos, intentar dividir por oraciones
+    if (paragraphs.length <= 2 && cleanContent.length > 500) {
+      // Dividir por patrones de fin de oración seguidos de mayúscula
+      paragraphs = cleanContent
+        .split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ"«])/)
+        .reduce((acc: string[], sentence, i, arr) => {
+          // Agrupar oraciones en párrafos de 2-4 oraciones
+          const lastParagraph = acc[acc.length - 1] || '';
+          const sentenceCount = (lastParagraph.match(/[.!?]/g) || []).length;
+          
+          if (sentenceCount >= 3 || lastParagraph.length > 400) {
+            acc.push(sentence.trim());
+          } else if (acc.length > 0) {
+            acc[acc.length - 1] = lastParagraph + ' ' + sentence.trim();
+          } else {
+            acc.push(sentence.trim());
+          }
+          return acc;
+        }, [])
+        .filter(p => p.length > 0);
+    }
+    
+    // Formatear cada párrafo
+    const formattedParagraphs = paragraphs.map(p => {
+      // Detectar si es un título (mayúsculas con :)
+      if (/^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]{5,50}:/.test(p)) {
+        const [title, ...rest] = p.split(':');
+        const restContent = rest.join(':').trim();
+        if (restContent) {
+          return `<h3>${title.trim()}</h3><p>${restContent}</p>`;
+        }
+        return `<h3>${title.trim()}</h3>`;
+      }
+      
+      // Detectar subtítulos con formato "Título: contenido"
+      if (/^[A-ZÁÉÍÓÚ][a-záéíóúñ\s]{5,40}:/.test(p)) {
+        const colonIndex = p.indexOf(':');
+        const title = p.substring(0, colonIndex).trim();
+        const restContent = p.substring(colonIndex + 1).trim();
+        if (restContent && title.split(' ').length <= 6) {
+          return `<h3>${title}</h3><p>${restContent}</p>`;
+        }
+      }
+      
+      return `<p>${p}</p>`;
+    });
+    
+    cleanContent = formattedParagraphs.join('\n');
+  }
+  
+  return cleanContent;
+}
+
+// ============================================
 // NUMBER UTILITIES
 // ============================================
 export function formatNumber(num: number): string {
