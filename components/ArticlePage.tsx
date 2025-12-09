@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import NYTHeader from '@/components/nyt/Header';
 import MediaPlayer from '@/components/MediaPlayer';
+import ViewTracker from '@/components/ViewTracker';
 import { Clock, Eye, Share2, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -58,6 +59,9 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Track article views */}
+      <ViewTracker articleId={article.id} />
+      
       {/* VERSION: mobile-first-v2 - 2024-11-30 */}
       <NYTHeader />
 
