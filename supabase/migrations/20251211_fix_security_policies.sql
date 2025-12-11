@@ -34,46 +34,46 @@ CREATE POLICY "Public read published"
   TO public
   USING (status = 'published');
 
--- SELECT autenticado: Admin/Editor/Author pueden ver todas
-DROP POLICY IF EXISTS "Admin editor read all" ON noticias;
-CREATE POLICY "Admin editor read all"
+-- SELECT autenticado: Solo admin puede ver todas (incluyendo drafts)
+DROP POLICY IF EXISTS "Admin read all" ON noticias;
+CREATE POLICY "Admin read all"
   ON noticias FOR SELECT
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM usuarios 
       WHERE usuarios.id = auth.uid() 
-      AND usuarios.role IN ('admin', 'editor', 'author')
+      AND usuarios.role = 'admin'
     )
   );
 
--- INSERT: Solo admin/editor autenticados
-DROP POLICY IF EXISTS "Admin editor insert" ON noticias;
-CREATE POLICY "Admin editor insert"
+-- INSERT: Solo admin
+DROP POLICY IF EXISTS "Admin insert only" ON noticias;
+CREATE POLICY "Admin insert only"
   ON noticias FOR INSERT
   TO authenticated
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM usuarios 
       WHERE usuarios.id = auth.uid() 
-      AND usuarios.role IN ('admin', 'editor')
+      AND usuarios.role = 'admin'
     )
   );
 
--- UPDATE: Solo admin/editor autenticados
-DROP POLICY IF EXISTS "Admin editor update" ON noticias;
-CREATE POLICY "Admin editor update"
+-- UPDATE: Solo admin
+DROP POLICY IF EXISTS "Admin update only" ON noticias;
+CREATE POLICY "Admin update only"
   ON noticias FOR UPDATE
   TO authenticated
   USING (
     EXISTS (
       SELECT 1 FROM usuarios 
       WHERE usuarios.id = auth.uid() 
-      AND usuarios.role IN ('admin', 'editor')
+      AND usuarios.role = 'admin'
     )
   );
 
--- DELETE: Solo admin autenticado
+-- DELETE: Solo admin
 DROP POLICY IF EXISTS "Admin delete only" ON noticias;
 CREATE POLICY "Admin delete only"
   ON noticias FOR DELETE
