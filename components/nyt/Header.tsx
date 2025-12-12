@@ -82,17 +82,8 @@ export default function NYTHeader() {
             </Link>
           </div>
 
-          {/* Right: Buttons - Responsive */}
-          <div className="flex items-center gap-2 md:gap-4 min-w-[180px] justify-end">
-            {/* Botones desktop */}
-            <button className="hidden md:block nyt-button text-[10px] uppercase px-3 md:px-4 py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
-              Suscribirse
-            </button>
-            <button className="hidden md:block nyt-button text-[10px] uppercase px-3 md:px-4 py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
-              Iniciar Sesión
-            </button>
-
-            {/* Menú hamburguesa móvil */}
+          {/* Right: Mobile menu */}
+          <div className="flex items-center min-w-[180px] justify-end">
             <button
               className="md:hidden p-2 hover:bg-gray-100 rounded"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -138,14 +129,7 @@ export default function NYTHeader() {
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-3 mt-2 border-t border-[var(--border-soft)] flex gap-2">
-                <button className="flex-1 nyt-button text-[10px] uppercase py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
-                  Suscribirse
-                </button>
-                <button className="flex-1 nyt-button text-[10px] uppercase py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
-                  Iniciar Sesión
-                </button>
-              </div>
+              {/* (sin botones de suscripción / login) */}
             </div>
           </nav>
         )}
