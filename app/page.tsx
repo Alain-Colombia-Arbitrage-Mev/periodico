@@ -114,7 +114,7 @@ export default function HomePage() {
                                 src={article.image_url}
                                 alt={article.title}
                                 fill
-                                className="object-cover hover:scale-105 transition-transform duration-300"
+                                className="object-contain hover:scale-105 transition-transform duration-300"
                                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                                 priority={false}
                               />

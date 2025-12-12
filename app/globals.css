@@ -3,6 +3,20 @@
 @tailwind utilities;
 
 :root {
+  /* ============================================
+   * INTERNATIONAL NEWSPAPER THEME (core tokens)
+   * ============================================ */
+  --paper-bg: #fbfbf7;
+  --paper-surface: #ffffff;
+  --ink: #0f0f12;
+  --ink-2: #2a2a33;
+  --ink-3: #5a5a67;
+  --border-soft: #e7e6df;
+  --accent: #0a4bff;
+  --accent-hover: #083bd1;
+  --shadow-soft: 0 8px 30px rgba(15, 15, 18, 0.06);
+  --max-width: 1280px;
+
   /* NYT Brand Colors */
   --nyt-black: #121212;
   --nyt-white: #FFFFFF;
@@ -12,11 +26,16 @@
   --nyt-text-secondary: #363636;
   --nyt-text-gray: #727272;
 
+  /* Buttons (used by NYTHeader) */
+  --nyt-button-bg: var(--accent);
+  --nyt-button-hover: var(--accent-hover);
+
   /* NYT Fonts */
   --font-nyt-franklin: 'nyt-franklin', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-nyt-cheltenham: 'nyt-cheltenham', Georgia, 'Times New Roman', serif;
   --font-georgia: Georgia, 'Times New Roman', serif;
   --font-helvetica: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-ui: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
 
   /* Semantic Colors - NYT Style */
   --color-success: #067A45;
@@ -49,8 +68,8 @@
   }
 
   body {
-    background-color: var(--nyt-white);
-    color: var(--nyt-text-primary);
+    background-color: var(--paper-bg);
+    color: var(--ink);
     font-family: var(--font-georgia);
     font-size: 16px;
     line-height: 1.75;
@@ -91,6 +110,10 @@
     opacity: 0.8;
   }
 
+  ::selection {
+    background: rgba(10, 75, 255, 0.18);
+  }
+
   /* Better tap targets for mobile */
   button, a {
     -webkit-tap-highlight-color: transparent;
@@ -106,6 +129,18 @@
 }
 
 @layer components {
+  /* Consistent container */
+  .site-container {
+    @apply mx-auto px-4 sm:px-6 lg:px-10;
+    max-width: var(--max-width);
+  }
+
+  .site-surface {
+    background-color: var(--paper-surface);
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+  }
+
   /* NYT Button Styles */
   .nyt-button {
     min-height: 44px; /* Better touch target */

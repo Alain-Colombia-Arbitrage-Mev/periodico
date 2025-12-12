@@ -58,7 +58,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--paper-bg)]">
       {/* Track article views */}
       <ViewTracker articleId={article.id} />
       
@@ -93,7 +93,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
             src={article.imageUrl}
             alt={article.title}
             fill
-            className="object-cover"
+            className="object-contain"
             priority
             sizes="100vw"
           />
@@ -109,7 +109,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
         </div>
 
         {/* Article Content Container - Full width on mobile */}
-        <div className="w-full px-4 md:max-w-[720px] md:mx-auto md:px-6 lg:px-8">
+        <div className="w-full px-4 md:max-w-[820px] md:mx-auto md:px-6 lg:px-8">
 
           {/* Desktop Breadcrumb */}
           <nav className="hidden md:flex items-center gap-2 text-sm text-gray-500 py-4 border-b border-gray-200">
@@ -161,7 +161,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
             </p>
 
             {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-3 md:gap-4 pt-4 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 pt-4 text-sm text-gray-500" style={{ fontFamily: 'var(--font-ui)' }}>
               <time className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
                 <span>
@@ -192,7 +192,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
           {/* Audio/Video Player */}
           {(article.audioUrl || article.videoUrl) && (
-            <div className="py-6 md:py-8 border-b border-gray-200">
+            <div className="py-6 md:py-8 border-b border-[var(--border-soft)]">
               {article.audioUrl && (
                 <div className="mb-6">
                   <MediaPlayer
@@ -343,7 +343,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
                           src={related.imageUrl}
                           alt={related.title}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-contain group-hover:scale-105 transition-transform duration-300"
                           sizes="(max-width: 768px) 96px, 50vw"
                         />
                       </div>

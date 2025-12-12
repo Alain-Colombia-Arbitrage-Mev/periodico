@@ -17,45 +17,65 @@ export default function NYTHeader() {
   const isArgentina = pathname === '/' || pathname.startsWith('/politica') || pathname.startsWith('/economia') || pathname.startsWith('/judicial') || pathname.startsWith('/sociedad');
   const isInternacional = pathname.startsWith('/internacional');
 
+  const navItems = [
+    { href: '/politica', label: 'Política', active: pathname.startsWith('/politica') },
+    { href: '/economia', label: 'Economía', active: pathname.startsWith('/economia') },
+    { href: '/judicial', label: 'Judicial', active: pathname.startsWith('/judicial') },
+    { href: '/internacional', label: 'Internacional', active: pathname.startsWith('/internacional') },
+    { href: '/sociedad', label: 'Sociedad', active: pathname.startsWith('/sociedad') },
+  ];
+
   return (
-    <header className="border-b border-black bg-white sticky top-0 z-50">
+    <header className="bg-[var(--paper-surface)] sticky top-0 z-50 border-b border-[var(--border-soft)]">
       {/* Ticker de Dólar */}
       <DolarTicker />
 
       {/* Top Bar */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
+      <div className="site-container">
         {/* Languages Bar - Enlaces funcionales */}
-        <div className="hidden sm:flex justify-center items-center gap-4 py-2 text-[10px] uppercase">
-          <Link
-            href="/"
-            className={`hover:font-bold transition-all ${isArgentina ? 'font-bold' : 'text-gray-600'}`}
-          >
-            ARGENTINA
-          </Link>
-          <Link
-            href="/internacional"
-            className={`hover:font-bold transition-all ${isInternacional ? 'font-bold' : 'text-gray-600'}`}
-          >
-            INTERNACIONAL
-          </Link>
-          <span className="text-gray-400 cursor-not-allowed">ESPAÑOL</span>
+        <div className="hidden sm:flex justify-between items-center py-2">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider" style={{ fontFamily: 'var(--font-ui)' }}>
+            <span className="text-[var(--ink-3)]">Edición</span>
+            <div className="inline-flex rounded-full border border-[var(--border-soft)] overflow-hidden bg-[var(--paper-bg)]">
+              <Link
+                href="/"
+                className={`px-3 py-1 transition ${
+                  isArgentina ? 'bg-[var(--paper-surface)] text-[var(--ink)]' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
+                }`}
+              >
+                Argentina
+              </Link>
+              <Link
+                href="/internacional"
+                className={`px-3 py-1 transition ${
+                  isInternacional ? 'bg-[var(--paper-surface)] text-[var(--ink)]' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
+                }`}
+              >
+                Internacional
+              </Link>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-[var(--ink-3)]" style={{ fontFamily: 'var(--font-ui)' }}>
+            {today}
+          </div>
         </div>
 
         {/* Logo and Date */}
-        <div className="flex items-center justify-between py-3 md:py-4 border-b border-gray-300">
-          {/* Left: Date - Oculto en móvil pequeño */}
-          <div className="hidden md:flex flex-col gap-1 min-w-[120px]">
-            <p className="text-[11px] md:text-[12px] font-bold whitespace-nowrap">{today}</p>
-            <Link href="/" className="text-[12px] md:text-[14px] text-gray-700 hover:underline">
-              Edición de Hoy
+        <div className="flex items-center justify-between py-3 md:py-4 border-b border-[var(--border-soft)]">
+          {/* Left: microcopy */}
+          <div className="hidden md:flex flex-col gap-0.5 min-w-[180px]" style={{ fontFamily: 'var(--font-ui)' }}>
+            <p className="text-[11px] text-[var(--ink-3)]">Periódico internacional</p>
+            <Link href="/" className="text-[12px] text-[var(--ink-2)] hover:underline">
+              Portada
             </Link>
           </div>
 
           {/* Center: Logo */}
-          <div className="flex-1 flex justify-center md:justify-center">
+          <div className="flex-1 flex justify-center">
             <Link
               href="/"
-              className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-center"
+              className="text-2xl sm:text-3xl md:text-[40px] font-serif font-bold tracking-tight text-center"
               style={{ fontFamily: 'var(--font-georgia)' }}
             >
               Política Argentina
@@ -63,12 +83,12 @@ export default function NYTHeader() {
           </div>
 
           {/* Right: Buttons - Responsive */}
-          <div className="flex items-center gap-2 md:gap-4 min-w-[120px] justify-end">
+          <div className="flex items-center gap-2 md:gap-4 min-w-[180px] justify-end">
             {/* Botones desktop */}
-            <button className="hidden md:block nyt-button text-[10px] uppercase px-3 md:px-4 py-2 rounded transition">
+            <button className="hidden md:block nyt-button text-[10px] uppercase px-3 md:px-4 py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
               Suscribirse
             </button>
-            <button className="hidden md:block nyt-button text-[10px] uppercase px-3 md:px-4 py-2 rounded transition">
+            <button className="hidden md:block nyt-button text-[10px] uppercase px-3 md:px-4 py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
               Iniciar Sesión
             </button>
 
@@ -84,45 +104,48 @@ export default function NYTHeader() {
         </div>
 
         {/* Navigation Desktop */}
-        <nav className="hidden md:flex items-center justify-center py-3 border-b-2 border-black">
-          <div className="flex items-center gap-4 lg:gap-8 text-[11px] uppercase font-bold tracking-wide">
-            <Link href="/politica" className="hover:underline whitespace-nowrap transition-all">
-              Política
-            </Link>
-            <Link href="/economia" className="hover:underline whitespace-nowrap transition-all">
-              Economía
-            </Link>
-            <Link href="/judicial" className="hover:underline whitespace-nowrap transition-all">
-              Judicial
-            </Link>
-            <Link href="/internacional" className="hover:underline whitespace-nowrap transition-all">
-              Internacional
-            </Link>
-            <Link href="/sociedad" className="hover:underline whitespace-nowrap transition-all">
-              Sociedad
-            </Link>
+        <nav className="hidden md:flex items-center justify-center py-3 border-b border-[var(--border-soft)]">
+          <div className="flex items-center gap-5 lg:gap-9 text-[11px] uppercase tracking-wider" style={{ fontFamily: 'var(--font-ui)', fontWeight: 700 }}>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`whitespace-nowrap transition ${
+                  item.active
+                    ? 'text-[var(--ink)] underline underline-offset-[10px] decoration-[var(--accent)] decoration-2'
+                    : 'text-[var(--ink-2)] hover:text-[var(--ink)]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </nav>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="md:hidden py-4 border-b-2 border-black">
-            <div className="flex flex-col gap-3 text-sm uppercase font-semibold">
-              <Link href="/politica" className="py-2 hover:bg-gray-50 px-2 rounded" onClick={() => setMobileMenuOpen(false)}>
-                Política
-              </Link>
-              <Link href="/economia" className="py-2 hover:bg-gray-50 px-2 rounded" onClick={() => setMobileMenuOpen(false)}>
-                Economía
-              </Link>
-              <Link href="/judicial" className="py-2 hover:bg-gray-50 px-2 rounded" onClick={() => setMobileMenuOpen(false)}>
-                Judicial
-              </Link>
-              <Link href="/internacional" className="py-2 hover:bg-gray-50 px-2 rounded" onClick={() => setMobileMenuOpen(false)}>
-                Internacional
-              </Link>
-              <Link href="/sociedad" className="py-2 hover:bg-gray-50 px-2 rounded" onClick={() => setMobileMenuOpen(false)}>
-                Sociedad
-              </Link>
+          <nav className="md:hidden py-4 border-b border-[var(--border-soft)]">
+            <div className="flex flex-col gap-2" style={{ fontFamily: 'var(--font-ui)' }}>
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`py-2 px-3 rounded text-sm uppercase tracking-wider font-semibold ${
+                    item.active ? 'bg-[var(--paper-bg)] text-[var(--ink)]' : 'hover:bg-[var(--paper-bg)] text-[var(--ink-2)]'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="pt-3 mt-2 border-t border-[var(--border-soft)] flex gap-2">
+                <button className="flex-1 nyt-button text-[10px] uppercase py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
+                  Suscribirse
+                </button>
+                <button className="flex-1 nyt-button text-[10px] uppercase py-2 rounded transition" style={{ fontFamily: 'var(--font-ui)' }}>
+                  Iniciar Sesión
+                </button>
+              </div>
             </div>
           </nav>
         )}

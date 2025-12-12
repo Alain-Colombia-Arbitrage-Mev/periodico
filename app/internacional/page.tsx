@@ -56,9 +56,9 @@ export default function InternacionalPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[var(--paper-bg)]">
         <NYTHeader />
-        <div className="flex items-center justify-center py-20">
+        <div className="site-container flex items-center justify-center py-20">
           <p className="text-lg">Cargando noticias internacionales...</p>
         </div>
         
@@ -70,12 +70,12 @@ export default function InternacionalPage() {
   const recentNews = noticias.slice(1, 11);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[var(--paper-bg)]">
       <NYTHeader />
 
-      <main className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+      <main className="site-container py-6 lg:py-8">
         {/* Category Header */}
-        <div className="mb-6 lg:mb-8 pb-4 border-b-2 border-black">
+        <div className="mb-6 lg:mb-8 pb-4 border-b border-[var(--border-soft)]">
           <div className="flex items-center gap-3 mb-2">
             <Globe2 className="w-8 h-8" style={{ color: '#4169E1' }} />
             <h1 className="text-3xl lg:text-4xl font-bold" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
@@ -112,7 +112,7 @@ export default function InternacionalPage() {
             {recentNews.length > 0 ? (
               <div className="space-y-0">
                 {recentNews.map((article) => (
-                  <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-black">
+                  <article key={article.id} className="mb-6 pb-6 lg:mb-8 lg:pb-8 border-b border-[var(--border-soft)]">
                     <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                       <div className="flex-shrink-0 md:w-[280px] lg:w-[348px]">
                         <Link href={`/internacional/${article.slug}`}>
@@ -129,12 +129,12 @@ export default function InternacionalPage() {
                       <div className="flex-shrink-0 flex-1 md:max-w-[420px] lg:max-w-[580px]">
                         <Link href={`/internacional/${article.slug}`}>
                           {article.image_url ? (
-                            <div className="relative w-full aspect-video md:aspect-auto md:h-[240px] lg:h-[300px] overflow-hidden rounded-sm">
+                            <div className="relative w-full aspect-video md:aspect-auto md:h-[240px] lg:h-[300px] overflow-hidden rounded-sm bg-gray-100">
                               <NewsImage
                                 src={article.image_url}
                                 alt={article.title}
                                 fill
-                                className="object-cover hover:scale-105 transition-transform duration-300"
+                                className="object-contain hover:scale-105 transition-transform duration-300"
                                 sizes="(max-width: 768px) 100vw, (max-width: 1024px) 420px, 580px"
                                 priority={false}
                               />
