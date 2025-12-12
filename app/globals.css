@@ -4,18 +4,19 @@
 
 :root {
   /* ============================================
-   * INTERNATIONAL NEWSPAPER THEME (core tokens)
+   * THE NEW YORK TIMES-INSPIRED THEME (core tokens)
    * ============================================ */
-  --paper-bg: #fbfbf7;
+  --paper-bg: #ffffff;
   --paper-surface: #ffffff;
-  --ink: #0f0f12;
-  --ink-2: #2a2a33;
-  --ink-3: #5a5a67;
-  --border-soft: #e7e6df;
-  --accent: #0a4bff;
-  --accent-hover: #083bd1;
-  --shadow-soft: 0 8px 30px rgba(15, 15, 18, 0.06);
-  --max-width: 1280px;
+  --ink: #121212;
+  --ink-2: #2a2a2a;
+  --ink-3: #666666;
+  --border-soft: #e2e2e2;
+  --rule-strong: #121212;
+  --accent: #326891; /* NYT-ish link blue */
+  --accent-hover: #285578;
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.06);
+  --max-width: 1240px;
 
   /* NYT Brand Colors */
   --nyt-black: #121212;
@@ -111,7 +112,7 @@
   }
 
   ::selection {
-    background: rgba(10, 75, 255, 0.18);
+    background: rgba(50, 104, 145, 0.18);
   }
 
   /* Better tap targets for mobile */

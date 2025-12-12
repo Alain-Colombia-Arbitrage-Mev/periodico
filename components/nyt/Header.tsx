@@ -26,7 +26,7 @@ export default function NYTHeader() {
   ];
 
   return (
-    <header className="bg-[var(--paper-surface)] sticky top-0 z-50 border-b border-[var(--border-soft)]">
+    <header className="bg-[var(--paper-surface)] sticky top-0 z-50 border-b border-[var(--rule-strong)]">
       {/* Ticker de Dólar */}
       <DolarTicker />
 
@@ -34,13 +34,13 @@ export default function NYTHeader() {
       <div className="site-container">
         {/* Languages Bar - Enlaces funcionales */}
         <div className="hidden sm:flex justify-between items-center py-2">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider" style={{ fontFamily: 'var(--font-ui)' }}>
+          <div className="flex items-center gap-3 text-[10px] uppercase tracking-widest" style={{ fontFamily: 'var(--font-ui)' }}>
             <span className="text-[var(--ink-3)]">Edición</span>
-            <div className="inline-flex rounded-full border border-[var(--border-soft)] overflow-hidden bg-[var(--paper-bg)]">
+            <div className="inline-flex gap-3">
               <Link
                 href="/"
                 className={`px-3 py-1 transition ${
-                  isArgentina ? 'bg-[var(--paper-surface)] text-[var(--ink)]' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
+                  isArgentina ? 'text-[var(--ink)] font-bold underline underline-offset-4 decoration-[var(--rule-strong)]' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
                 }`}
               >
                 Argentina
@@ -48,7 +48,7 @@ export default function NYTHeader() {
               <Link
                 href="/internacional"
                 className={`px-3 py-1 transition ${
-                  isInternacional ? 'bg-[var(--paper-surface)] text-[var(--ink)]' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
+                  isInternacional ? 'text-[var(--ink)] font-bold underline underline-offset-4 decoration-[var(--rule-strong)]' : 'text-[var(--ink-3)] hover:text-[var(--ink)]'
                 }`}
               >
                 Internacional
@@ -75,7 +75,7 @@ export default function NYTHeader() {
           <div className="flex-1 flex justify-center">
             <Link
               href="/"
-              className="text-2xl sm:text-3xl md:text-[40px] font-serif font-bold tracking-tight text-center"
+              className="text-2xl sm:text-3xl md:text-[44px] font-serif font-bold tracking-tight text-center"
               style={{ fontFamily: 'var(--font-georgia)' }}
             >
               Política Argentina
@@ -95,7 +95,7 @@ export default function NYTHeader() {
         </div>
 
         {/* Navigation Desktop */}
-        <nav className="hidden md:flex items-center justify-center py-3 border-b border-[var(--border-soft)]">
+        <nav className="hidden md:flex items-center justify-center py-3 border-b-2 border-[var(--rule-strong)]">
           <div className="flex items-center gap-5 lg:gap-9 text-[11px] uppercase tracking-wider" style={{ fontFamily: 'var(--font-ui)', fontWeight: 700 }}>
             {navItems.map((item) => (
               <Link
@@ -103,7 +103,7 @@ export default function NYTHeader() {
                 href={item.href}
                 className={`whitespace-nowrap transition ${
                   item.active
-                    ? 'text-[var(--ink)] underline underline-offset-[10px] decoration-[var(--accent)] decoration-2'
+                    ? 'text-[var(--ink)] underline underline-offset-[10px] decoration-[var(--rule-strong)] decoration-2'
                     : 'text-[var(--ink-2)] hover:text-[var(--ink)]'
                 }`}
               >

@@ -58,7 +58,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
   };
 
   return (
-    <div className="min-h-screen bg-[var(--paper-bg)]">
+    <div className="min-h-screen bg-white">
       {/* Track article views */}
       <ViewTracker articleId={article.id} />
       
@@ -68,7 +68,7 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
       {/* Mobile-first Article Layout */}
       <main className="w-full">
         {/* Back Button - Mobile Only */}
-        <div className="sticky top-[60px] z-40 bg-white border-b border-gray-200 px-4 py-2 md:hidden">
+        <div className="sticky top-[60px] z-40 bg-white border-b border-[var(--border-soft)] px-4 py-2 md:hidden">
           <div className="flex items-center justify-between">
             <Link
               href={`/${article.categorySlug}`}
@@ -109,10 +109,10 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
         </div>
 
         {/* Article Content Container - Full width on mobile */}
-        <div className="w-full px-4 md:max-w-[820px] md:mx-auto md:px-6 lg:px-8">
+        <div className="w-full px-4 md:max-w-[760px] md:mx-auto md:px-6 lg:px-8">
 
           {/* Desktop Breadcrumb */}
-          <nav className="hidden md:flex items-center gap-2 text-sm text-gray-500 py-4 border-b border-gray-200">
+          <nav className="hidden md:flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--ink-3)] py-4 border-b border-[var(--border-soft)]" style={{ fontFamily: 'var(--font-ui)' }}>
             <Link href="/" className="hover:text-black transition">
               Inicio
             </Link>
@@ -128,7 +128,8 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
             <div className="hidden md:block mb-4">
               <Link
                 href={`/${article.categorySlug}`}
-                className="inline-block text-sm font-bold uppercase tracking-wide text-blue-600 hover:text-blue-800 transition"
+                className="inline-block text-[11px] font-bold uppercase tracking-widest text-[var(--ink-2)] hover:text-[var(--ink)] transition"
+                style={{ fontFamily: 'var(--font-ui)' }}
               >
                 {article.category}
               </Link>
@@ -154,14 +155,14 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
 
             {/* Excerpt */}
             <p
-              className="text-base md:text-lg text-gray-700 leading-relaxed pb-4 md:pb-6 border-b border-gray-200"
+              className="text-base md:text-lg text-gray-700 leading-relaxed pb-4 md:pb-6 border-b border-[var(--border-soft)]"
               style={{ fontFamily: 'var(--font-georgia)' }}
             >
               {article.excerpt}
             </p>
 
             {/* Meta Information */}
-            <div className="flex flex-wrap items-center gap-3 md:gap-4 pt-4 text-sm text-gray-500" style={{ fontFamily: 'var(--font-ui)' }}>
+            <div className="flex flex-wrap items-center gap-3 md:gap-4 pt-4 text-xs uppercase tracking-widest text-[var(--ink-3)]" style={{ fontFamily: 'var(--font-ui)' }}>
               <time className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
                 <span>
@@ -240,6 +241,18 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
                 font-size: 1.125rem;
               }
 
+              /* NYT-like drop cap (desktop) */
+              @media (min-width: 768px) {
+                .article-content p:first-of-type::first-letter {
+                  float: left;
+                  font-size: 3.25rem;
+                  line-height: 0.9;
+                  padding-right: 0.35rem;
+                  padding-top: 0.25rem;
+                  font-weight: 700;
+                }
+              }
+
               .article-content h2,
               .article-content h3 {
                 font-weight: 700;
@@ -257,8 +270,9 @@ export default function ArticlePage({ article, relatedArticles = [] }: ArticlePa
               }
 
               .article-content a {
-                color: #2563eb;
+                color: var(--accent);
                 text-decoration: underline;
+                text-underline-offset: 2px;
               }
 
               .article-content blockquote {

@@ -21,7 +21,7 @@ interface MainHeadlineProps {
 
 export default function MainHeadline({ article }: MainHeadlineProps) {
   return (
-    <article className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-black">
+    <article className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-[var(--border-soft)]">
       {/* Mobile-First Layout: Stack Vertically */}
       <div className="flex flex-col gap-4 md:gap-6">
         {/* Image First - Better Mobile UX */}
@@ -50,7 +50,7 @@ export default function MainHeadline({ article }: MainHeadlineProps) {
         <div className="w-full">
           <div className="space-y-3 md:space-y-4">
             <Link href={`/${article.category_slug}/${article.slug}`} className="block">
-              <h1 className="text-[24px] sm:text-[30px] md:text-[36px] lg:text-[40px] font-bold leading-tight hover:opacity-80 transition-opacity duration-200" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
+              <h1 className="text-[26px] sm:text-[32px] md:text-[40px] lg:text-[44px] font-bold leading-tight hover:opacity-80 transition-opacity duration-200" style={{ fontFamily: 'var(--font-georgia)', color: 'var(--nyt-text-primary)' }}>
                 {article.title}
               </h1>
             </Link>
@@ -67,7 +67,7 @@ export default function MainHeadline({ article }: MainHeadlineProps) {
               </p>
             )}
 
-            <div className="text-[11px] md:text-[12px] pt-2" style={{ color: 'var(--nyt-text-gray)' }}>
+            <div className="text-[11px] md:text-[12px] pt-2" style={{ color: 'var(--nyt-text-gray)', fontFamily: 'var(--font-ui)' }}>
               {formatDistanceToNow(new Date(article.published_at), {
                 addSuffix: true,
                 locale: es
